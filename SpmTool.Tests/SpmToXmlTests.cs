@@ -12,12 +12,6 @@ namespace SpmTool.Tests
     public class SpmToXmlTests
     {
         [Test]
-        public void FailMe()
-        {
-            Assert.Fail("Boom!!");
-        }
-
-        [Test]
         public void Convert_String()
         {
             var text =
