@@ -15,7 +15,9 @@ namespace SpmTool.Tests
         public void Convert_String()
         {
             var text =
-@"<Spektrum>Generator=""DX8""</Spektrum>";
+@"<Spektrum>
+Generator=""DX8""
+</Spektrum>";
 
             var xml = SpmToXml.Convert(text);
 
