@@ -1,12 +1,5 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/SpmTool/bin/Debug
-/SpmTool/obj/Debug
-/SpmTool.Tests/obj/Debug
-/SpmTool.Tests/bin/Debug
-/SpmTool.WebApplication.4.0/obj/Debug
+﻿**/bin/Debug/
+**/obj/Debug/
 /SpmTool.WebApplication.4.0/bin
 *.user
 /.vs
