@@ -34,7 +34,7 @@
     <body>
         <form id="form1" runat="server">
 
-            <h3>Spektrum DX7s/DX8 &lt;&gt; DX9/DX18 conversion tool</h3>
+            <h3>Spektrum DX7s/DX8 to DX9/DX18 conversion tool</h3>
 
             <p>
                 <img alt="DX7s" class="auto-style1" src="dx7s-small.png" />
