@@ -43,8 +43,9 @@
                 <img alt="DX18" class="auto-style1" src="dx18-small.png" /></p>
             <p>
             Please subscribe to this <a href="http://www.rcgroups.com/forums/showthread.php?t=2083054">thread</a> for more information/updates.
+            Here are some facts about <a href="https://www.rcgroups.com/forums/showthread.php?2083054-Spektrum-DX8-DX7s-DX9-DX18-conversion-tool-%28back-conversion-is-also-supported%29/page41#post40061413">compatible</a>
+            SD cards.
             </p>
-
             <p>
                 Contact email address:<br />
                 <asp:TextBox ID="contactTextBox" runat="server"></asp:TextBox>
