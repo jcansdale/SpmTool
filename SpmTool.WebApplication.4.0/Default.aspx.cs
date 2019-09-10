@@ -181,7 +181,7 @@ namespace SpmTool.WebApplication
                                 sourceSpm = SpmConvert.DX8To(sourceSpm, generator: sourceGenerator);
                             }
 
-                            if (sourceGenerator != "DX9" && sourceGenerator != "DX18")
+                            if (sourceGenerator != "DX8G2" && sourceGenerator != "DX9" && sourceGenerator != "DX18")
                             {
                                 messageWriter.WriteLine(path + " is not a DX9/DX18 model file");
                                 return null;
