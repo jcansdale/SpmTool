@@ -1,0 +1,32 @@
+name: Send Test Email
+
+env:
+  SMTP_SERVER: smtp.gmail.com
+  SMTP_USERNAME: spm@mutantdesign.co.uk
+  SMTP_PASSWORD: E3*WVqa%2
+  EMAIL_FROM: spm@mutantdesign.co.uk
+  EMAIL_TO: jcansdale+spm@gmail.com
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test email
+        run: |
+          echo "Subject: GitHub Actions Test Email" > email.txt
+          echo "To: ${{ secrets.EMAIL_TO }}" >> email.txt
+          echo "From: ${{ secrets.EMAIL_FROM }}" >> email.txt
+          echo >> email.txt
+          echo "This is a test email sent from a GitHub Actions workflow." >> email.txt
+          echo "If you received this, the workflow is working!" >> email.txt
+          
+          curl --url "smtp://${{ secrets.SMTP_SERVER }}:587" \
+            --ssl-reqd \
+            --mail-from "${{ secrets.EMAIL_FROM }}" \
+            --mail-rcpt "${{ secrets.EMAIL_TO }}" \
+            --upload-file email.txt \
+            --user "${{ secrets.SMTP_USERNAME }}:${{ secrets.SMTP_PASSWORD }}" \
+            --insecure
