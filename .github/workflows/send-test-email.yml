@@ -8,6 +8,7 @@ env:
   EMAIL_TO: jcansdale+spm@gmail.com
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
