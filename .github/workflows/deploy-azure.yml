@@ -23,11 +23,6 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore SpmTool.sln
 
-      - name: Install .NET Framework 4.0 targeting pack
-        shell: powershell
-        run: |
-          choco install netfx-4.0.3-devpack -y
-
       - name: Build solution
         run: msbuild SpmTool.WebApplication.4.0/SpmTool.WebApplication.4.0.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}/publish"
 
