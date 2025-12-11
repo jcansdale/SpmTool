@@ -3,7 +3,7 @@ name: Send Test Email
 env:
   SMTP_SERVER: smtp.gmail.com
   SMTP_USERNAME: spm@mutantdesign.co.uk
-  SMTP_PASSWORD: E3*WVqa%2
+  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   EMAIL_FROM: spm@mutantdesign.co.uk
   EMAIL_TO: jcansdale+spm@gmail.com
 
