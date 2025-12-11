@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -254,7 +255,9 @@ namespace SpmTool.WebApplication
         {
             SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
             client.EnableSsl = true;
-            client.Credentials = new NetworkCredential("spm@mutantdesign.co.uk", "E3*WVqa%2");
+            var smtpPassword = ConfigurationManager.AppSettings["SMTP_PASSWORD"] 
+                ?? Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+            client.Credentials = new NetworkCredential("spm@mutantdesign.co.uk", smtpPassword);
             client.Send(message);
         }
     }
