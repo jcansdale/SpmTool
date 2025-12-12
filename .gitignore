@@ -1,8 +1,7 @@
 ﻿**/bin/Debug/
 **/obj/Debug/
-/SpmTool.WebApplication.4.0/bin
+**/bin/
+**/obj/
 *.user
 /.vs
 /packages
-/SamplesAndStuff
-/SpmTool/bin/Debug
