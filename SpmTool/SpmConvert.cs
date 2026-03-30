@@ -15,9 +15,7 @@
     {
         public static string DX9To(string dx9Spm)
         {
-            string xml = SpmToXml.Convert(dx9Spm);
-            var reader = new StringReader(xml);
-            XPathDocument doc = new XPathDocument(reader);
+            XPathDocument doc = loadSpmDocument(dx9Spm);
 
             string modelName = null;
             var nameNode = doc.CreateNavigator().SelectSingleNode("/SPM/Spektrum/Name");
@@ -27,17 +25,13 @@
                 modelName = getShortName(modelName);
             }
 
-            XslCompiledTransform transform = findTransform("SpmTool.DX9toDX8.xslt");
-            var writer = new StringWriter();
             var args = new XsltArgumentList();
             if (modelName != null)
             {
                 args.AddParam("modelName", "", modelName);
             }
 
-            transform.Transform(doc, args, writer);
-
-            var dx8Xml = writer.ToString();
+            var dx8Xml = transformToString(doc, "SpmTool.DX9toDX8.xslt", args);
             var dx8Spm = XmlToSpm.Convert(dx8Xml);
             return dx8Spm;
         }
@@ -67,13 +61,8 @@
 
         public static string DX8To(string dx8Spm, string generator = "DX9", string modelName = null, string masterVolume = null)
         {
-            string xml = SpmToXml.Convert(dx8Spm);
-            var reader = new StringReader(xml);
-            XPathDocument doc = new XPathDocument(reader);
+            XPathDocument doc = loadSpmDocument(dx8Spm);
 
-            XslCompiledTransform transform = findTransform("SpmTool.DX8toDX9.xsl");
-
-            var writer = new StringWriter();
             var args = new XsltArgumentList();
             if (modelName != null)
             {
@@ -87,24 +76,35 @@
 
             args.AddParam("generator", "", generator);
 
-            transform.Transform(doc, args, writer);
-            return writer.ToString();
+            string dx9Spm = transformToString(doc, "SpmTool.DX8toDX9.xsl", args);
+            return normalizeSpm(dx9Spm);
         }
 
         public static string FilterDX8(string dx8Spm)
         {
-            string xml = SpmToXml.Convert(dx8Spm);
-            var reader = new StringReader(xml);
-            XPathDocument doc = new XPathDocument(reader);
-
-            XslCompiledTransform transform = findTransform("SpmTool.FilterDX8.xslt");
-            var writer = new StringWriter();
-            var args = new XsltArgumentList();
-
-            transform.Transform(doc, args, writer);
-
-            var dx8Xml = writer.ToString();
+            XPathDocument doc = loadSpmDocument(dx8Spm);
+            var dx8Xml = transformToString(doc, "SpmTool.FilterDX8.xslt", new XsltArgumentList());
             return XmlToSpm.Convert(dx8Xml);
+        }
+
+        static XPathDocument loadSpmDocument(string spm)
+        {
+            string xml = SpmToXml.Convert(spm);
+            var reader = new StringReader(xml);
+            return new XPathDocument(reader);
+        }
+
+        static string transformToString(XPathDocument doc, string resourceName, XsltArgumentList args)
+        {
+            XslCompiledTransform transform = findTransform(resourceName);
+            var writer = new StringWriter();
+            transform.Transform(doc, args, writer);
+            return writer.ToString();
+        }
+
+        static string normalizeSpm(string spm)
+        {
+            return XmlToSpm.Convert(SpmToXml.Convert(spm));
         }
 
         static XslCompiledTransform findTransform(string resourceName)

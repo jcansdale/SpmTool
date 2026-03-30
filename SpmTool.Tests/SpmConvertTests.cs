@@ -20,7 +20,10 @@ namespace SpmTool.Tests
         public void DX8To()
         {
             string expectedGenerator = "DX18";
-            var dx8Spm = @"<Spektrum>Generator=""DX8""VCode="" 3.00""</Spektrum>";
+            var dx8Spm = @"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+</Spektrum>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm, expectedGenerator);
 
@@ -37,7 +40,10 @@ namespace SpmTool.Tests
         [Test]
         public void DX8ToDX9()
         {
-            var dx8Spm = @"<Spektrum>Generator=""DX8""VCode="" 3.00""</Spektrum>";
+            var dx8Spm = @"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+</Spektrum>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -55,7 +61,10 @@ namespace SpmTool.Tests
         public void DX8ToDX9_MasterVolume()
         {
             string expectedMasterVolume = "20";
-            var dx8Spm = @"<Spektrum>Generator=""DX8""VCode="" 3.00""</Spektrum>";
+            var dx8Spm = @"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+</Spektrum>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm, masterVolume: expectedMasterVolume);
 
@@ -69,10 +78,61 @@ namespace SpmTool.Tests
         }
 
         [Test]
+        public void DX8ToDX9_Output_IsCanonicalSpmText()
+        {
+            var dx8Spm = @"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+Type=Acro
+Name=""Test""
+</Spektrum>
+
+<Acro>
+Wing=Normal
+Tail=Normal
+</Acro>
+
+<FMode>
+switch_a= 40
+switch_b= 41
+switch_c= 42
+size= 9
+data: 0 1 2
+</FMode>";
+
+            var dx9Spm = SpmConvert.DX8To(dx8Spm);
+            var canonicalDx9Spm = XmlToSpm.Convert(SpmToXml.Convert(dx9Spm));
+
+            Assert.That(dx9Spm, Is.EqualTo(canonicalDx9Spm));
+        }
+
+        [Test]
+        public void DX8ToDX9_Output_EndsWithEofMarker()
+        {
+            var dx8Spm = @"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+Type=Acro
+</Spektrum>
+
+<Acro>
+Wing=Normal
+Tail=Normal
+</Acro>";
+
+            var dx9Spm = SpmConvert.DX8To(dx8Spm).Replace("\r\n", "\n");
+
+            StringAssert.EndsWith("*EOF*\n", dx9Spm);
+        }
+
+        [Test]
         public void DX8ToDX9_ModelNumber()
         {
             string expectedModelName = "__TEST__";
-            var dx8Spm =@"<Spektrum>Name=""Acro""</Spektrum>";
+            var dx8Spm =
+@"<Spektrum>
+Name=""Acro""
+</Spektrum>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm, modelName: expectedModelName);
 
@@ -89,7 +149,11 @@ namespace SpmTool.Tests
         public void DX8ToDX9_Config(string trimType, string expectTrimType)
         {
             var dx8Spm =
-string.Format(@"<Config>FrameRate=AutoTrimType={0}trimMode=Normal</Config>", trimType);
+string.Format(@"<Config>
+FrameRate=Auto
+TrimType={0}
+trimMode=Normal
+</Config>", trimType);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -109,7 +173,16 @@ string.Format(@"<Config>FrameRate=AutoTrimType={0}trimMode=Normal</Config>",
         public void DX8ToDX9_Spektrum_Sail(string name, string value)
         {
             var dx8Spm =
-@"<Spektrum>Generator=""DX8""VCode="" 3.00""; Originator=""HH101XBRcz9pUHB8kBAOaZhH0regbM""PosIndex= 5PosMaxSail= 5Type=SailcurveIndex= 7Name=""Sail""</Spektrum>";
+@"<Spektrum>
+Generator=""DX8""
+VCode="" 3.00""
+; Originator=""HH101XBRcz9pUHB8kBAOaZhH0regbM""
+PosIndex= 5
+PosMaxSail= 5
+Type=Sail
+curveIndex= 7
+Name=""Sail""
+</Spektrum>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -225,7 +298,8 @@ subTypeC={1}
 Motor={0}
 </Sail>
 
-<ThroCurve>analogID= 16
+<ThroCurve>
+analogID= 16
 </ThroCurve>", motor);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -255,17 +329,27 @@ Motor={0}
         public void DX8ToDX9_ThroCurve_assignedCurve_Sail(string motor, string activePositions, params string[] ac)
         {
             var dx8Spm = string.Format(
-@"<Sail>Wing=StandardTail=NormalMotor={0}</Sail>
+@"<Sail>
+Wing=Standard
+Tail=Normal
+Motor={0}
+</Sail>
 
 <RAE-Mix>
 activePositions={1}
 </RAE-Mix>
 
-<ThroCurve>analogID= 16
+<ThroCurve>
+analogID= 16
 conditionID= 0
 assignedCurve: 0 1 2 3 4
 
-[Curvedata]*Index= 1X: -1023 -511 0 511 1023 0 0Y: 0 0 0 0 0 0 0[/Curvedata]</ThroCurve>", motor, activePositions);
+[Curvedata]
+*Index= 1
+X: -1023 -511 0 511 1023 0 0
+Y: 0 0 0 0 0 0 0
+[/Curvedata]
+</ThroCurve>", motor, activePositions);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -301,17 +385,27 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_ThroCurve_assignedCurve_Sail_SpoilStk(string motor, string activePositions, params string[] ac)
         {
             var dx8Spm = string.Format(
-@"<Sail>Wing=StandardTail=NormalMotor={0}</Sail>
+@"<Sail>
+Wing=Standard
+Tail=Normal
+Motor={0}
+</Sail>
 
 <RAE-Mix>
 activePositions={1}
 </RAE-Mix>
 
-<ThroCurve>analogID= 16
+<ThroCurve>
+analogID= 16
 conditionID= 0
 assignedCurve: 0 1 2 3 4
 
-[Curvedata]*Index= 1X: -1023 -511 0 511 1023 0 0Y: 0 0 0 0 0 0 0[/Curvedata]</ThroCurve>", motor, activePositions);
+[Curvedata]
+*Index= 1
+X: -1023 -511 0 511 1023 0 0
+Y: 0 0 0 0 0 0 0
+[/Curvedata]
+</ThroCurve>", motor, activePositions);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -345,11 +439,42 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberPreset_Sail(string name, string value)
         {
             var dx8Spm =
-@"<Sail>Wing=Ail_2_Flap_2</Sail><CamberPreset>conditionID= 127[cpItem]*Index= 1flap= 800flon= 1600elevator= 1200speed= 32676[/cpItem]
+@"<Sail>
+Wing=Ail_2_Flap_2
+</Sail>
+
+<CamberPreset>
+conditionID= 127
+
+[cpItem]
+*Index= 1
+flap= 800
+flon= 1600
+elevator= 1200
+speed= 32676
+[/cpItem]
 </CamberPreset>";
 
             /*
-            <CamberPreset>            conditionID= 145            activePositions=%0000            mixName="Camber Presets"            [efItem]            *Index= 1            offset= 0            flapLeft= 8000            flapRight= -8000            flonLeft= -16000            flonRight= 16000            tipLeft= 0            tipRight= 0            elevator= 12000            speed= 32676            analogID= 0            [/efItem]            </CamberPreset>
+            <CamberPreset>
+            conditionID= 145
+            activePositions=%0000
+            mixName="Camber Presets"
+
+            [efItem]
+            *Index= 1
+            offset= 0
+            flapLeft= 8000
+            flapRight= -8000
+            flonLeft= -16000
+            flonRight= 16000
+            tipLeft= 0
+            tipRight= 0
+            elevator= 12000
+            speed= 32676
+            analogID= 0
+            [/efItem]
+            </CamberPreset>
             */
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -374,7 +499,14 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberPreset_flapRight_Sail(string wing, string flap, string expectedFlapRight)
         {
             var dx8Spm = string.Format(
-@"<Sail>Wing={0}</Sail><CamberPreset>[cpItem]flap= {1}[/cpItem]
+@"<Sail>
+Wing={0}
+</Sail>
+
+<CamberPreset>
+[cpItem]
+flap= {1}
+[/cpItem]
 </CamberPreset>", wing, flap);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -404,12 +536,41 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberMix_Sail(string name, string value)
         {
             var dx8Spm =
-@"<CamberMix>conditionID= 0[csItem]*Index= 2offset= -1023flapUp= 255flapDown= 511flonUp= 767flonDown= 1023analogID= 16[/csItem]
+@"<CamberMix>
+conditionID= 0
+
+[csItem]
+*Index= 2
+offset= -1023
+flapUp= 255
+flapDown= 511
+flonUp= 767
+flonDown= 1023
+analogID= 16
+[/csItem]
 </CamberMix>";
 
             /*
-            <CamberMix>            conditionID= 145            activePositions=%0000            mixName="Camber System"            [efItem]            *Index= 2            offset= 1023            flapLeft= 250            flapRight= 500            flonLeft= -750            flonRight= -1000            tipLeft= 0            tipRight= 0            elevator= 0            speed= 32736            analogID= 76            [/efItem]
-            </CamberMix>            */
+            <CamberMix>
+            conditionID= 145
+            activePositions=%0000
+            mixName="Camber System"
+
+            [efItem]
+            *Index= 2
+            offset= 1023
+            flapLeft= 250
+            flapRight= 500
+            flonLeft= -750
+            flonRight= -1000
+            tipLeft= 0
+            tipRight= 0
+            elevator= 0
+            speed= 32736
+            analogID= 76
+            [/efItem]
+            </CamberMix>
+            */
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -435,7 +596,15 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberMix_flaps_Sail(string wing, string name, string value)
         {
             var dx8Spm = string.Format(
-@"<Sail>Wing={0}</Sail><CamberMix>[csItem]flapUp= 255flapDown= 511[/csItem]
+@"<Sail>
+Wing={0}
+</Sail>
+
+<CamberMix>
+[csItem]
+flapUp= 255
+flapDown= 511
+[/csItem]
 </CamberMix>", wing);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -455,7 +624,10 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberMix_analogID_Sail(string analogID, string expectedAnalogID)
         {
             var dx8Spm = string.Format(
-@"<CamberMix>[csItem]analogID= {0}[/csItem]
+@"<CamberMix>
+[csItem]
+analogID= {0}
+[/csItem]
 </CamberMix>", analogID);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -476,7 +648,10 @@ assignedCurve: 0 1 2 3 4
         public void DX8ToDX9_CamberMix_Sail_Percentage(string binaryPercentage, string normalPercentage)
         {
             var dx8Spm =
-string.Format(@"<CamberMix>[csItem]flapUp= {0}[/csItem]
+string.Format(@"<CamberMix>
+[csItem]
+flapUp= {0}
+[/csItem]
 </CamberMix>", binaryPercentage);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -572,7 +747,19 @@ right= 511
 </AR-Mix-S>";
 
 /*
-<AR-Mix-S>conditionID= 145mixName="AIL > RUD"[arafItem]*Index= 0left= 0right= 0left1= 255right1= 511left2= 0right2= 0[/arafItem]
+<AR-Mix-S>
+conditionID= 145
+mixName="AIL > RUD"
+
+[arafItem]
+*Index= 0
+left= 0
+right= 0
+left1= 255
+right1= 511
+left2= 0
+right2= 0
+[/arafItem]
 */
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -600,10 +787,32 @@ right= 511
         public void DX8ToDX9_AF_Mix_Sail(string name, string value)
         {
             var dx8Spm =
-@"<AF-Mix-S>conditionID= 63[arafItem]*Index= 1left= -613right= -409[/arafItem]</AF-Mix-S>";
+@"<AF-Mix-S>
+conditionID= 63
+
+[arafItem]
+*Index= 1
+left= -613
+right= -409
+[/arafItem]
+</AF-Mix-S>";
 
 /*
-<AF-Mix-S>conditionID= 107mixName="AIL > FLP"[arafItem]*Index= 1left= -613right= -409left1= 0right1= 0left2= 0right2= 0[/arafItem]</AF-Mix-S>*/
+<AF-Mix-S>
+conditionID= 107
+mixName="AIL > FLP"
+
+[arafItem]
+*Index= 1
+left= -613
+right= -409
+left1= 0
+right1= 0
+left2= 0
+right2= 0
+[/arafItem]
+</AF-Mix-S>
+*/
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -641,11 +850,46 @@ right= 511
         public void DX8ToDX9_FlpEleMix_Sail(string name, string value)
         {
             var dx8Spm =
-@"<FlpEleMix>analogID= 16conditionID= 127trimID= 0activeMask=%0000delay= 0assignedCurve: 0 1 2 3 4[Curvedata]*Index= 1points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: 327 327 306 204 0 0 0[/Curvedata]</FlpEleMix>";
+@"<FlpEleMix>
+analogID= 16
+conditionID= 127
+trimID= 0
+activeMask=%0000
+delay= 0
+assignedCurve: 0 1 2 3 4
+
+[Curvedata]
+*Index= 1
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: 327 327 306 204 0 0 0
+[/Curvedata]
+</FlpEleMix>";
 
 /*
-<FlpEleMix>analogID= 198conditionID= 0trimID= 0activeMask=%0000delay= 0mixName="FLP > ELE"assignedCurve: 0 1 2 3 4 4 4 4 4 4[Curvedata]*Index= 1points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: 327 327 306 204 0 0 0[/Curvedata]
-</FlpEleMix>*/
+<FlpEleMix>
+analogID= 198
+conditionID= 0
+trimID= 0
+activeMask=%0000
+delay= 0
+mixName="FLP > ELE"
+assignedCurve: 0 1 2 3 4 4 4 4 4 4
+
+[Curvedata]
+*Index= 1
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: 327 327 306 204 0 0 0
+[/Curvedata]
+</FlpEleMix>
+*/
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -675,15 +919,39 @@ right= 511
         public void DX8ToDX9_Differential_Sail(string name, string value)
         {
             var dx8Spm =
-@"<Spektrum>Type=Sail</Spektrum>
+@"<Spektrum>
+Type=Sail
+</Spektrum>
 
 <Sail>
 </Sail>
 
-<Differential>conditionID= 127ailRate: 818 409 460 255 0flapRate: 0 0 0 0 0</Differential>";
+<Differential>
+conditionID= 127
+ailRate: 818 409 460 255 0
+flapRate: 0 0 0 0 0
+</Differential>";
 
 /*
-<Diff-Ail>conditionID= 145rate: 818 409 460 255 0 0 0 0 0 0</Diff-Ail><Diff-Flap>conditionID= 145rate: 0 0 0 0 0 0 0 0 0 0</Diff-Flap><Diff-Tip>conditionID= 145rate: 0 0 0 0 0 0 0 0 0 0</Diff-Tip><Diff-Rud>conditionID= 0rate: 0 0 0 0 0 0 0 0 0 0</Diff-Rud>
+<Diff-Ail>
+conditionID= 145
+rate: 818 409 460 255 0 0 0 0 0 0
+</Diff-Ail>
+
+<Diff-Flap>
+conditionID= 145
+rate: 0 0 0 0 0 0 0 0 0 0
+</Diff-Flap>
+
+<Diff-Tip>
+conditionID= 145
+rate: 0 0 0 0 0 0 0 0 0 0
+</Diff-Tip>
+
+<Diff-Rud>
+conditionID= 0
+rate: 0 0 0 0 0 0 0 0 0 0
+</Diff-Rud>
 */
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -715,7 +983,19 @@ right= 511
         public void DX8ToDX9_Servo_Sail(string generator, string wing, string index, string name, string expectedVSource)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Generator=""{0}""Type=Sail</Spektrum><Sail>Wing={1}</Sail><Servo>*Index= {2}name={3}</Servo>", generator, wing, index, name);
+string.Format(@"<Spektrum>
+Generator=""{0}""
+Type=Sail
+</Spektrum>
+
+<Sail>
+Wing={1}
+</Sail>
+
+<Servo>
+*Index= {2}
+name={3}
+</Servo>", generator, wing, index, name);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -735,7 +1015,20 @@ string.Format(@"<Spektrum>Generator=""{0}""Type=Sail</Spektrum><Sail>Wing=
         public void DX8ToDX9_Servo_direction_Sail(string type, string index, string direction, string name, string expectedDirection)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Type={0}</Spektrum><{0}></{0}><Servo>*Index= {1}direction={2}name={3}</Servo>", type, index, direction, name);
+string.Format(
+@"<Spektrum>
+Type={0}
+</Spektrum>
+
+<{0}>
+</{0}>
+
+<Servo>
+*Index= {1}
+direction={2}
+name={3}
+</Servo>
+", type, index, direction, name);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -757,7 +1050,16 @@ string.Format(@"<Spektrum>Type={0}</Spektrum><{0}></{0}><Servo>*Index= 
         {
             var dx8Spm =
 string.Format(
-@"<Spektrum>Type={0}</Spektrum><{0}></{0}><FMode></FMode>", type, index);
+@"<Spektrum>
+Type={0}
+</Spektrum>
+
+<{0}>
+</{0}>
+
+<FMode>
+</FMode>
+", type, index);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -842,9 +1144,19 @@ chanBtype=Disabled
         {
             var dx8Spm =
 string.Format(
-@"<Spektrum>Type=Sail</Spektrum><Sail>Motor={0}</Sail><RAE-Mix>
+@"<Spektrum>
+Type=Sail
+</Spektrum>
+
+<Sail>
+Motor={0}
+</Sail>
+
+<RAE-Mix>
 activePositions={1}
-</RAE-Mix><Warning>
+</RAE-Mix>
+
+<Warning>
 Motor={2}
 </Warning>", motor, activePositions, warningMotor);
 
@@ -900,7 +1212,11 @@ Swash=Swash_1_Normal
         {
             var dx8Spm =
 string.Format(@"<Heli>
-</Heli><Warning>FltMode={0}</Warning>", fltMode);
+</Heli>
+
+<Warning>
+FltMode={0}
+</Warning>", fltMode);
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -921,7 +1237,9 @@ string.Format(@"<Heli>
         public void DX8ToDX9_Warning_Flaps(string flaps, string expectFlaps)
         {
             var dx8Spm =
-string.Format(@"<Warning>Flaps={0}</Warning>", flaps);
+string.Format(@"<Warning>
+Flaps={0}
+</Warning>", flaps);
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -938,7 +1256,9 @@ string.Format(@"<Warning>Flaps={0}</Warning>", flaps);
         public void DX8ToDX9_Warning_Gear(string gear, string expectGear)
         {
             var dx8Spm =
-string.Format(@"<Warning>Gear={0}</Warning>", gear);
+string.Format(@"<Warning>
+Gear={0}
+</Warning>", gear);
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -954,7 +1274,11 @@ string.Format(@"<Warning>Gear={0}</Warning>", gear);
         {
             var dx8Spm =
 @"<Acro>
-</Acro><Warning>FltMode=%0000</Warning>";
+</Acro>
+
+<Warning>
+FltMode=%0000
+</Warning>";
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
             var xml = SpmToXml.Convert(dx9Spm);
@@ -976,7 +1300,22 @@ string.Format(@"<Warning>Gear={0}</Warning>", gear);
             string expectedConditionID = "0"; // DX8 and DX9 are fixed as FMode
             string expectedTrimID = "108"; // 64-> 108 - THR Trim (ThroCurve/trimID)
             var dx8Spm =
-@"<ThroCurve>analogID= 16conditionID= 0trimID= 64activeMask=%0000delay= 0assignedCurve: 0 1 2 3 1[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=DisabledX: -1023 -511 0 511 1023 0 0Y: -1023 -1023 -1023 -1023 -1023 0 0[/Curvedata]
+@"<ThroCurve>
+analogID= 16
+conditionID= 0
+trimID= 64
+activeMask=%0000
+delay= 0
+assignedCurve: 0 1 2 3 1
+
+[Curvedata]
+*Index= 0
+points= 5
+Expo=Disabled
+trimActive=Disabled
+X: -1023 -511 0 511 1023 0 0
+Y: -1023 -1023 -1023 -1023 -1023 0 0
+[/Curvedata]
 </ThroCurve>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -1047,7 +1386,22 @@ Y: -1023 -511 0 511 1023 0 0
             string expectedConditionID = "145"; // DX8 is fixed as FMode
             string expectedTrimID = "0";
             var dx8Spm =
-@"<RevoCurve>analogID= 16conditionID= 0trimID= 0activeMask=%0000delay= 100assignedCurve: 0 1 2 3 4[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=DisabledX: -1023 -511 0 511 1023 0 0Y: 0 0 0 0 0 0 0[/Curvedata]
+@"<RevoCurve>
+analogID= 16
+conditionID= 0
+trimID= 0
+activeMask=%0000
+delay= 100
+assignedCurve: 0 1 2 3 4
+
+[Curvedata]
+*Index= 0
+points= 5
+Expo=Disabled
+trimActive=Disabled
+X: -1023 -511 0 511 1023 0 0
+Y: 0 0 0 0 0 0 0
+[/Curvedata]
 </RevoCurve>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -1075,7 +1429,17 @@ Y: -1023 -511 0 511 1023 0 0
             string expectedActivePositions = "%0006";
             string expectedFmtable = "1 1 1 1 1 1 2 2 2 2 2 2 3 4 4 3 4 4";
             var dx8Spm =
-@"<Heli>Swash=Swash_1_Normal</Heli><FMode>switch_a= 41switch_b= 40switch_c= 0size= 9data: 1 0 0 2 0 0 3 0 0</FMode>";
+@"<Heli>
+Swash=Swash_1_Normal
+</Heli>
+
+<FMode>
+switch_a= 41
+switch_b= 40
+switch_c= 0
+size= 9
+data: 1 0 0 2 0 0 3 0 0
+</FMode>";
 
 /*
 <FMode>
@@ -1112,7 +1476,14 @@ activePositions=%0006
         {
             string expectedConditionID = "145"; // 127->145 - Flight Mode
             var dx8Spm =
-@"<Gyro>sourceID= 0conditionID= 127trimID= 0fpct: 0 0 0 0 0tailHold=DisabledoutChan= 8</Gyro>";
+@"<Gyro>
+sourceID= 0
+conditionID= 127
+trimID= 0
+fpct: 0 0 0 0 0
+tailHold=Disabled
+outChan= 8
+</Gyro>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1129,7 +1500,13 @@ activePositions=%0006
         {
             string expectedConditionID = "145"; // 127->145 - Flight Mode
             var dx8Spm =
-@"<Governor>sourceID= 0conditionID= 127trimID= 0fpct: 0 0 0 0 0outChan= 7</Governor>";
+@"<Governor>
+sourceID= 0
+conditionID= 127
+trimID= 0
+fpct: 0 0 0 0 0
+outChan= 7
+</Governor>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1274,7 +1651,10 @@ rateExpo= 30
         public void DX8ToDX9_Acro()
         {
             var dx8Spm =
-@"<Acro>Wing=StandardTail=Normal</Acro>";
+@"<Acro>
+Wing=Standard
+Tail=Normal
+</Acro>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1294,7 +1674,16 @@ rateExpo= 30
         {
             string expectedSourceID = "35"; // 239->35  - RUD (same as RUD?)
             var dx8Spm =
-@"<Servo>*Index= 3sourceID= 239speed= 32736direction=NormalsubTrim= 0travelLow= -100travelHigh= 100name=RUD</Servo>";
+@"<Servo>
+*Index= 3
+sourceID= 239
+speed= 32736
+direction=Normal
+subTrim= 0
+travelLow= -100
+travelHigh= 100
+name=RUD
+</Servo>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1333,7 +1722,16 @@ name=GYR
         {
             string expectedSourceID = "201"; // 245->201  - Governor
             var dx8Spm =
-@"<Servo>*Index= 6sourceID= 245speed= 32736direction=NormalsubTrim= 0travelLow= -100travelHigh= 100name=GOV</Servo>";
+@"<Servo>
+*Index= 6
+sourceID= 245
+speed= 32736
+direction=Normal
+subTrim= 0
+travelLow= -100
+travelHigh= 100
+name=GOV
+</Servo>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1353,7 +1751,20 @@ name=GYR
         public void DX8ToDX9_Servo_Tail(string generator, string tail, string index, string name, string expectedVSource)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Generator=""{0}""</Spektrum><Acro>Wing=Dual_AilTail={1}</Acro><Servo>*Index= {2}sourceID= 194name={3}</Servo>", generator, tail, index, name);
+string.Format(@"<Spektrum>
+Generator=""{0}""
+</Spektrum>
+
+<Acro>
+Wing=Dual_Ail
+Tail={1}
+</Acro>
+
+<Servo>
+*Index= {2}
+sourceID= 194
+name={3}
+</Servo>", generator, tail, index, name);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1410,7 +1821,10 @@ speed= {0}
         public void DX8ToDX9_Servo_ConvertSubTrim(string generator, string vcode, string direction, string subTrim, string expectedSubTrim)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Generator=""{0}""VCode=""{1}""</Spektrum>
+string.Format(@"<Spektrum>
+Generator=""{0}""
+VCode=""{1}""
+</Spektrum>
 
 <Servo>
 *Index= 0
@@ -1444,7 +1858,10 @@ subTrim= {3}
             string expectedTravelLow, string expectedTravelHigh)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Generator=""{0}""VCode=""{1}""</Spektrum>
+string.Format(@"<Spektrum>
+Generator=""{0}""
+VCode=""{1}""
+</Spektrum>
 
 <Servo>
 *Index= 0
@@ -1526,7 +1943,23 @@ expoLow: 0 0 0 0 0
             string expectedConditionID = "145"; // 127->145 - Flight Mode
             string expectedOutChan = "37"; // 197->37  - AX1 (outChan)
             var dx8Spm =
-@"<P-Mix>*Index= 0analogID= 97conditionID= 127trimID= 0activePositions=%0002outChan= 197[Curvedata]*Index= 0points= 3Expo=DisabledtrimActive=DisabledX: -1023 0 1023 0 0 0 0Y: 511 0 -511 0 0 0 0[/Curvedata]</P-Mix>";
+@"<P-Mix>
+*Index= 0
+analogID= 97
+conditionID= 127
+trimID= 0
+activePositions=%0002
+outChan= 197
+
+[Curvedata]
+*Index= 0
+points= 3
+Expo=Disabled
+trimActive=Disabled
+X: -1023 0 1023 0 0 0 0
+Y: 511 0 -511 0 0 0 0
+[/Curvedata]
+</P-Mix>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1550,7 +1983,9 @@ expoLow: 0 0 0 0 0
         public void DX8ToDX9_P_Mix_Heli(string type, string conditionID, string activePositions, string expectedConditionID)
         {
             var dx8Spm = string.Format(
-@"<Spektrum>Type={0}</Spektrum>
+@"<Spektrum>
+Type={0}
+</Spektrum>
 
 <P-Mix>
 *Index= 0
@@ -1608,7 +2043,24 @@ activePositions={2}
         public void DX8ToDX9_P_Mix_Remap(string generator, string type, string wing, string tail, string outChan, string expectedOutChan)
         {
             var dx8Spm =
-string.Format(@"<Spektrum>Generator=""{0}""Type={1}</Spektrum><{1}>Wing={2}Tail={3}</{1}><P-Mix>*Index= 1analogID= 16conditionID= 63trimID= 0activePositions=%00FFoutChan= {4}</P-Mix>", generator, type, wing, tail, outChan);
+string.Format(@"<Spektrum>
+Generator=""{0}""
+Type={1}
+</Spektrum>
+
+<{1}>
+Wing={2}
+Tail={3}
+</{1}>
+
+<P-Mix>
+*Index= 1
+analogID= 16
+conditionID= 63
+trimID= 0
+activePositions=%00FF
+outChan= {4}
+</P-Mix>", generator, type, wing, tail, outChan);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1625,7 +2077,12 @@ string.Format(@"<Spektrum>Generator=""{0}""Type={1}</Spektrum><{1}>Wing={2
         {
             string expectedConditionID = "89"; // 47-> 89  - Mix/Hold->Switch H
             var dx8Spm =
-@"<ThroCut>conditionID= 47percent= 306rampSpeed= 32736activePositions=%FFFE</ThroCut>";
+@"<ThroCut>
+conditionID= 47
+percent= 306
+rampSpeed= 32736
+activePositions=%FFFE
+</ThroCut>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1683,7 +2140,20 @@ Y: -1023 -511 0 511 1023 0 0
         {
             string expectedStartID = "1"; // 1->  1   - THR Servo Out (Timer/StartID)
             var dx8Spm =
-@"<Timer>*Index= 0Mode=DownMinutes= 4Seconds= 0oneTime=DisabledAudio=EnabledVibrate=DisabledStartID= 1Event= 2Thresh= -511activePositions=%FFFE</Timer>";
+@"<Timer>
+*Index= 0
+Mode=Down
+Minutes= 4
+Seconds= 0
+
+oneTime=Disabled
+Audio=Enabled
+Vibrate=Disabled
+StartID= 1
+Event= 2
+Thresh= -511
+activePositions=%FFFE
+</Timer>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1708,7 +2178,10 @@ Y: -1023 -511 0 511 1023 0 0
         public void DX8ToDX9_Timer_Audio(string audio, string expectedAudioX)
         {
             var dx8Spm = string.Format(
-@"<Timer>*Index= 0Audio={0}</Timer>", audio);
+@"<Timer>
+*Index= 0
+Audio={0}
+</Timer>", audio);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1725,7 +2198,10 @@ Y: -1023 -511 0 511 1023 0 0
         public void DX8ToDX9_Timer_Vibrate(string vibrate, string expectedVibeX)
         {
             var dx8Spm = string.Format(
-@"<Timer>*Index= 0Vibrate={0}</Timer>", vibrate);
+@"<Timer>
+*Index= 0
+Vibrate={0}
+</Timer>", vibrate);
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -1847,7 +2323,8 @@ points= 3
 Expo=Disabled
 trimActive=Disabled
 X: -1023 0 1023 0 0 0 0
-Y: -511 0 -511 0 0 0 0[/Curvedata]
+Y: -511 0 -511 0 0 0 0
+[/Curvedata]
 </AR-Mix>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
@@ -1950,7 +2427,18 @@ rate: 0 0 0 0 0
             string expectedSwitchB = "82"; // 40-> 82  - Gear->Switch A
             string expectedSwitchC = "0";
             var dx8Spm =
-@"<Acro>Wing=StandardTail=Normal</Acro><FMode>switch_a= 41switch_b= 40switch_c= 0size= 9data: 0 1 2 1 3 3 2 3 3</FMode>";
+@"<Acro>
+Wing=Standard
+Tail=Normal
+</Acro>
+
+<FMode>
+switch_a= 41
+switch_b= 40
+switch_c= 0
+size= 9
+data: 0 1 2 1 3 3 2 3 3
+</FMode>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -2015,7 +2503,10 @@ sourceID= 8
         {
             string expectedSourceID = "0"; // 70-> 0   - FlpTrm (not supported on DX9?)
             var dx8Spm =
-@"<SoftSw>*Index= 4sourceID= 70</SoftSw>";
+@"<SoftSw>
+*Index= 4
+sourceID= 70
+</SoftSw>";
 
             var dx9Spm = SpmConvert.DX8To(dx8Spm);
 
@@ -2173,7 +2664,8 @@ Active: Disabled Enabled Disabled Enabled Disabled Enabled Disabled Enabled
             Assert.That(activeNode, Is.Null, "Check 'Active' has been removed");
             var mixRatioNode = navigator.SelectSingleNode("/SPM/Trainer/mixRatio");
             Assert.That(mixRatioNode, Is.Not.Null, "Check 'mixRatio' has been created");
-            StringAssert.Contains("mixRatio:  0  100  0  100  0  100  0  100", dx9Spm);
+            Assert.That(mixRatioNode.Select("Element").Cast<XPathNavigator>().Select(node => node.Value),
+                Is.EqualTo(new[] { "0", "100", "0", "100", "0", "100", "0", "100" }));
         }
 
         [TestCase("/SPM/Trainer/Type", "Normal")]
@@ -2917,7 +3409,14 @@ trimID= {0}
         public void DX9To_FMode(string element, bool keep)
         {
             var dx9Spm =
-@"<FMode>switch_a= 83switch_b= 84switch_c= 0size= 18fmtable: 0 0 0 0 0 0 1 3 4 0 0 0 2 2 2 0 0 0activePositions=%0002</FMode>";
+@"<FMode>
+switch_a= 83
+switch_b= 84
+switch_c= 0
+size= 18
+fmtable: 0 0 0 0 0 0 1 3 4 0 0 0 2 2 2 0 0 0
+activePositions=%0002
+</FMode>";
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -2941,7 +3440,13 @@ trimID= {0}
         public void DX9To_FMode()
         {
             var dx9Spm =
-@"<FMode>switch_a= 83switch_b= 84switch_c= 0size= 18fmtable: 0 0 0 0 0 0 1 3 4 0 0 0 2 2 2 0 0 0</FMode>";
+@"<FMode>
+switch_a= 83
+switch_b= 84
+switch_c= 0
+size= 18
+fmtable: 0 0 0 0 0 0 1 3 4 0 0 0 2 2 2 0 0 0
+</FMode>";
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -3654,7 +4159,10 @@ activePositions= 254
         public void DX9To_Timer_audioX(string audioX, string expectedAudio)
         {
             var dx9Spm = string.Format(
-@"<Timer>*Index= 0audioX={0}</Timer>", audioX);
+@"<Timer>
+*Index= 0
+audioX={0}
+</Timer>", audioX);
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -3673,7 +4181,10 @@ activePositions= 254
         public void DX9To_Timer_vibeX(string vibeX, string expectedVibrate)
         {
             var dx9Spm = string.Format(
-@"<Timer>*Index= 0vibeX={0}</Timer>", vibeX);
+@"<Timer>
+*Index= 0
+vibeX={0}
+</Timer>", vibeX);
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -3736,7 +4247,9 @@ chanBtype=Disabled
         public void DX9To_Warning_Flaps(string flaps, string expectFlaps)
         {
             var dx9Spm =
-string.Format(@"<Warning>Flaps={0}</Warning>", flaps);
+string.Format(@"<Warning>
+Flaps={0}
+</Warning>", flaps);
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
             var xml = SpmToXml.Convert(dx8Spm);
@@ -3753,7 +4266,9 @@ string.Format(@"<Warning>Flaps={0}</Warning>", flaps);
         public void DX9To_Warning_Gear(string gear, string expectGear)
         {
             var dx9Spm =
-string.Format(@"<Warning>Gear={0}</Warning>", gear);
+string.Format(@"<Warning>
+Gear={0}
+</Warning>", gear);
             var dx8Spm = SpmConvert.DX8To(dx9Spm);
 
             var xml = SpmToXml.Convert(dx8Spm);
@@ -3777,7 +4292,16 @@ string.Format(@"<Warning>Gear={0}</Warning>", gear);
         public void DX9To_Warning_Acro_FltMode_Hold(string fltMode, string expectFltMode)
         {
             var dx9Spm =
-string.Format(@"<Spektrum>Type=Acro</Spektrum><Acro></Acro><Warning>FltMode={0}</Warning>", fltMode);
+string.Format(@"<Spektrum>
+Type=Acro
+</Spektrum>
+
+<Acro>
+</Acro>
+
+<Warning>
+FltMode={0}
+</Warning>", fltMode);
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
             var xml = SpmToXml.Convert(dx8Spm);
@@ -3794,7 +4318,9 @@ string.Format(@"<Spektrum>Type=Acro</Spektrum><Acro></Acro><Warning>FltM
         public void DX9To_Heli(string element, bool keep)
         {
             var dx9Spm =
-@"<Heli>Swash=Swash_1_Normal</Heli>";
+@"<Heli>
+Swash=Swash_1_Normal
+</Heli>";
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -3817,7 +4343,20 @@ string.Format(@"<Spektrum>Type=Acro</Spektrum><Acro></Acro><Warning>FltM
         public void DX9To_Heli_FMode()
         {
             var dx9Spm =
-@"<Spektrum>Type=Heli</Spektrum><Heli>Swash=Swash_1_Normal</Heli><FMode>switch_a= 83switch_b= 0switch_c= 89size= 18</FMode>";
+@"<Spektrum>
+Type=Heli
+</Spektrum>
+
+<Heli>
+Swash=Swash_1_Normal
+</Heli>
+
+<FMode>
+switch_a= 83
+switch_b= 0
+switch_c= 89
+size= 18
+</FMode>";
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -3846,7 +4385,14 @@ string.Format(@"<Spektrum>Type=Acro</Spektrum><Acro></Acro><Warning>FltM
         public void DX9To_Heli_FMode_data(string fmtable, string activePositions, string expectedData)
         {
             var dx9Spm = string.Format(
-@"<Spektrum>Type=Heli</Spektrum><FMode>fmtable: {0}activePositions={1}</FMode>", fmtable, activePositions);
+@"<Spektrum>
+Type=Heli
+</Spektrum>
+
+<FMode>
+fmtable: {0}
+activePositions={1}
+</FMode>", fmtable, activePositions);
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
@@ -4208,7 +4754,13 @@ eleComp= 0
         public void DX9To_Warning_Heli(string element, bool keep)
         {
             var dx9Spm =
-@"<Spektrum>Type=Heli</Spektrum><Heli>Swash=Swash_1_Normal</Heli>
+@"<Spektrum>
+Type=Heli
+</Spektrum>
+
+<Heli>
+Swash=Swash_1_Normal
+</Heli>
 
 <Warning>
 Vibrate=Enabled
@@ -4262,7 +4814,18 @@ chanBtype=Disabled
         public void DX9To_Warning_Heli_FltMode_Hold(string fltMode, string hold, string expectFltMode)
         {
             var dx9Spm =
-string.Format(@"<Spektrum>Type=Heli</Spektrum><Heli>Swash=Swash_1_Normal</Heli><Warning>FltMode={0}Hold={1}</Warning>", fltMode, hold);
+string.Format(@"<Spektrum>
+Type=Heli
+</Spektrum>
+
+<Heli>
+Swash=Swash_1_Normal
+</Heli>
+
+<Warning>
+FltMode={0}
+Hold={1}
+</Warning>", fltMode, hold);
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
             var xml = SpmToXml.Convert(dx8Spm);
@@ -4289,7 +4852,19 @@ string.Format(@"<Spektrum>Type=Heli</Spektrum><Heli>Swash=Swash_1_Normal</
         public void DX9To_Spektrum_Sail(string element, bool keep)
         {
             var dx9Spm =
-@"<Spektrum>Generator=""DX9""VCode="" 1.03""Originator=""HS309XBwg4v74CHkcIOIrSLaVDKKkj""mmNum=3bCode=0PosIndex= 5PosMaxSail= 10Type=SailcurveIndex= 7enabXPLUS=DisabledName=""Sail""</Spektrum>";
+@"<Spektrum>
+Generator=""DX9""
+VCode="" 1.03""
+Originator=""HS309XBwg4v74CHkcIOIrSLaVDKKkj""
+mmNum=3
+bCode=0
+PosIndex= 5
+PosMaxSail= 10
+Type=Sail
+curveIndex= 7
+enabXPLUS=Disabled
+Name=""Sail""
+</Spektrum>";
 
             var dx8Spm = SpmConvert.DX9To(dx9Spm);
 
