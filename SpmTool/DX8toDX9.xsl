@@ -162,6 +162,30 @@ Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:valu
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="mapWarningMotor">
+    <xsl:param name="motor" />
+
+    <xsl:choose>
+      <xsl:when test="$motor='%0000'">%0000</xsl:when>
+      <xsl:when test="$motor='%0001' and /SPM/Sail/Motor='SpoilStk'">%0000</xsl:when>
+      <xsl:when test="$motor='%0001'"><xsl:value-of select="/SPM/RAE-Mix/activePositions" /></xsl:when>
+      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$motor" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="mapWarningFlaps">
+    <xsl:param name="flaps" />
+
+    <xsl:choose>
+      <xsl:when test="$flaps='%0000'">%0000</xsl:when>
+      <xsl:when test="$flaps='%0001'">%0002</xsl:when>
+      <xsl:when test="$flaps='%0002'">%0004</xsl:when>
+      <xsl:when test="$flaps='%0003'">%0006</xsl:when>
+      <xsl:when test="$flaps='%0004'">%0005</xsl:when>
+      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$flaps" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="emitTrainerMixRatio">
 mixOrNormal=%0000
 mixRatio:<xsl:for-each select="Active/Element">
@@ -470,15 +494,7 @@ flonRight= <xsl:value-of select=".*10" />
   </xsl:template>
   
   <xsl:template mode="namevalue" match="Warning/Motor">
-    <xsl:text>Motor=</xsl:text>
-    <xsl:choose>
-      <xsl:when test="text()='%0000'">%0000</xsl:when>
-      <xsl:when test="text()='%0001' and /SPM/Sail/Motor='SpoilStk'">%0000</xsl:when>
-      <xsl:when test="text()='%0001'">
-        <xsl:value-of select="/SPM/RAE-Mix/activePositions" />
-      </xsl:when>
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="." /></xsl:otherwise>
-    </xsl:choose>
+    <xsl:text>Motor=</xsl:text><xsl:call-template name="mapWarningMotor"><xsl:with-param name="motor" select="text()" /></xsl:call-template>
 <xsl:text>
 </xsl:text>
   </xsl:template>
@@ -553,14 +569,7 @@ sdEnabled= 1
 </xsl:text></xsl:if> 
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
+  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:call-template name="mapWarningFlaps"><xsl:with-param name="flaps" select="text()" /></xsl:call-template>
 <xsl:text>
 </xsl:text>
 </xsl:template>
