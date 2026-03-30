@@ -129,63 +129,6 @@ X: -1023 -511 0 511 1023 0 0
 Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> 0 0
 [/Curvedata]</xsl:template>
 
-  <xsl:template name="mapWarningFltMode">
-    <xsl:param name="fltMode" />
-
-    <xsl:choose>
-      <xsl:when test="/SPM/Sail">
-        <xsl:value-of select="$fltMode" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="$fltMode='%0000'">%0000</xsl:when>
-          <xsl:when test="$fltMode='%0020'">%0004</xsl:when>
-          <xsl:when test="$fltMode='%0040'">%0008</xsl:when>
-          <xsl:when test="$fltMode='%0060'">%000C</xsl:when>
-          <xsl:when test="$fltMode='%0080'">%0000</xsl:when>
-          <xsl:when test="$fltMode='%00A0'">%0004</xsl:when>
-          <xsl:when test="$fltMode='%00C0'">%0008</xsl:when>
-          <xsl:when test="$fltMode='%00E0'">%000C</xsl:when>
-          <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$fltMode" /></xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="mapWarningHold">
-    <xsl:param name="fltMode" />
-
-    <xsl:choose>
-      <xsl:when test="$fltMode='%0000' or $fltMode='%0020' or $fltMode='%0040' or $fltMode='%0060'">%0000</xsl:when>
-      <xsl:when test="$fltMode='%0080' or $fltMode='%00A0' or $fltMode='%00C0' or $fltMode='%00E0'">%0002</xsl:when>
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$fltMode" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="mapWarningMotor">
-    <xsl:param name="motor" />
-
-    <xsl:choose>
-      <xsl:when test="$motor='%0000'">%0000</xsl:when>
-      <xsl:when test="$motor='%0001' and /SPM/Sail/Motor='SpoilStk'">%0000</xsl:when>
-      <xsl:when test="$motor='%0001'"><xsl:value-of select="/SPM/RAE-Mix/activePositions" /></xsl:when>
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$motor" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="mapWarningFlaps">
-    <xsl:param name="flaps" />
-
-    <xsl:choose>
-      <xsl:when test="$flaps='%0000'">%0000</xsl:when>
-      <xsl:when test="$flaps='%0001'">%0002</xsl:when>
-      <xsl:when test="$flaps='%0002'">%0004</xsl:when>
-      <xsl:when test="$flaps='%0003'">%0006</xsl:when>
-      <xsl:when test="$flaps='%0004'">%0005</xsl:when>
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$flaps" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template name="mapServoVSource">
     <xsl:param name="servoName" />
     <xsl:param name="servoIndex" />
@@ -500,7 +443,7 @@ flonRight= <xsl:value-of select=".*10" />
   </xsl:template>
   
   <xsl:template mode="namevalue" match="Warning/Motor">
-    <xsl:text>Motor=</xsl:text><xsl:call-template name="mapWarningMotor"><xsl:with-param name="motor" select="text()" /></xsl:call-template>
+    <xsl:text>Motor=</xsl:text><xsl:value-of select="spm:MapWarningMotor(text(), /SPM/Sail/Motor/text(), /SPM/RAE-Mix/activePositions/text())" />
 <xsl:text>
 </xsl:text>
   </xsl:template>
@@ -557,15 +500,15 @@ sdEnabled= 1
   
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/FltMode">FltMode=<xsl:call-template name="mapWarningFltMode"><xsl:with-param name="fltMode" select="text()" /></xsl:call-template>
+  <xsl:template mode="namevalue" match="Warning/FltMode">FltMode=<xsl:value-of select="spm:MapWarningFltMode(text(), boolean(/SPM/Sail))" />
 <xsl:text>
 </xsl:text>
-    <xsl:if test="/SPM/Heli">Hold=<xsl:call-template name="mapWarningHold"><xsl:with-param name="fltMode" select="text()" /></xsl:call-template>
+    <xsl:if test="/SPM/Heli">Hold=<xsl:value-of select="spm:MapWarningHold(text())" />
 <xsl:text>
 </xsl:text></xsl:if> 
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:call-template name="mapWarningFlaps"><xsl:with-param name="flaps" select="text()" /></xsl:call-template>
+  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:value-of select="spm:MapWarningFlaps(text())" />
 <xsl:text>
 </xsl:text>
 </xsl:template>

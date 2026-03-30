@@ -2,6 +2,84 @@ namespace SpmTool
 {
     static class Dx8ToDx9ValueMapper
     {
+        public static string MapWarningFltMode(string fltMode, bool isSail)
+        {
+            fltMode = fltMode?.Trim();
+
+            if (isSail)
+            {
+                return fltMode;
+            }
+
+            switch (fltMode)
+            {
+                case "%0000": return "%0000";
+                case "%0020": return "%0004";
+                case "%0040": return "%0008";
+                case "%0060": return "%000C";
+                case "%0080": return "%0000";
+                case "%00A0": return "%0004";
+                case "%00C0": return "%0008";
+                case "%00E0": return "%000C";
+                default: return "UNKNOWN_" + fltMode;
+            }
+        }
+
+        public static string MapWarningHold(string fltMode)
+        {
+            fltMode = fltMode?.Trim();
+
+            switch (fltMode)
+            {
+                case "%0000":
+                case "%0020":
+                case "%0040":
+                case "%0060":
+                    return "%0000";
+                case "%0080":
+                case "%00A0":
+                case "%00C0":
+                case "%00E0":
+                    return "%0002";
+                default:
+                    return "UNKNOWN_" + fltMode;
+            }
+        }
+
+        public static string MapWarningMotor(string motor, string sailMotor, string activePositions)
+        {
+            motor = motor?.Trim();
+            sailMotor = sailMotor?.Trim();
+            activePositions = activePositions?.Trim();
+
+            switch (motor)
+            {
+                case "%0000":
+                    return "%0000";
+                case "%0001" when sailMotor == "SpoilStk":
+                    return "%0000";
+                case "%0001":
+                    return activePositions;
+                default:
+                    return "UNKNOWN_" + motor;
+            }
+        }
+
+        public static string MapWarningFlaps(string flaps)
+        {
+            flaps = flaps?.Trim();
+
+            switch (flaps)
+            {
+                case "%0000": return "%0000";
+                case "%0001": return "%0002";
+                case "%0002": return "%0004";
+                case "%0003": return "%0006";
+                case "%0004": return "%0005";
+                default: return "UNKNOWN_" + flaps;
+            }
+        }
+
         public static string MapSailSubTypeC(string motor, string subTypeC)
         {
             motor = motor?.Trim();
@@ -138,6 +216,26 @@ namespace SpmTool
         public string MapSailSubTypeC(string motor, string subTypeC)
         {
             return Dx8ToDx9ValueMapper.MapSailSubTypeC(motor, subTypeC);
+        }
+
+        public string MapWarningFltMode(string fltMode, bool isSail)
+        {
+            return Dx8ToDx9ValueMapper.MapWarningFltMode(fltMode, isSail);
+        }
+
+        public string MapWarningHold(string fltMode)
+        {
+            return Dx8ToDx9ValueMapper.MapWarningHold(fltMode);
+        }
+
+        public string MapWarningMotor(string motor, string sailMotor, string activePositions)
+        {
+            return Dx8ToDx9ValueMapper.MapWarningMotor(motor, sailMotor, activePositions);
+        }
+
+        public string MapWarningFlaps(string flaps)
+        {
+            return Dx8ToDx9ValueMapper.MapWarningFlaps(flaps);
         }
     }
 }
