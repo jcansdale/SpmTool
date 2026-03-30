@@ -2156,7 +2156,7 @@ Active: Disabled Enabled Disabled Enabled Disabled Enabled Disabled Enabled
             /*
             <Trainer>
             mixOrNormal=%0000
-            mixRatio:  0  100  0  100  0  100  0  100
+            mixRatio: 0 100 0 100 0 100 0 100
             </Trainer>
              */
 
@@ -2173,7 +2173,7 @@ Active: Disabled Enabled Disabled Enabled Disabled Enabled Disabled Enabled
             Assert.That(activeNode, Is.Null, "Check 'Active' has been removed");
             var mixRatioNode = navigator.SelectSingleNode("/SPM/Trainer/mixRatio");
             Assert.That(mixRatioNode, Is.Not.Null, "Check 'mixRatio' has been created");
-            StringAssert.Contains("mixRatio:  0  100  0  100  0  100  0  100", dx9Spm);
+            StringAssert.Contains("mixRatio: 0 100 0 100 0 100 0 100", dx9Spm);
         }
 
         [TestCase("/SPM/Trainer/Type", "Normal")]
@@ -2194,7 +2194,7 @@ Active: Disabled Enabled Disabled Enabled Disabled Enabled Disabled Enabled
             <Trainer>
             Type=Normal
             mixOrNormal=%0000
-            mixRatio:  0  100  0  100  0  100  0  100
+            mixRatio: 0 100 0 100 0 100 0 100
             conditionID= 92
             MOverride=Disabled
             activePositions= 254
