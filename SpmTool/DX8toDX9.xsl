@@ -228,6 +228,15 @@ fmVox=%0055
 
 </xsl:text>
   </xsl:template>
+
+  <xsl:template name="mapTrimType">
+    <xsl:param name="trimType" />
+
+    <xsl:choose>
+      <xsl:when test="$trimType='FMode'">%0000003F</xsl:when>
+      <xsl:otherwise>%00000000</xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   
 <!-- Sail -->
   
@@ -581,10 +590,8 @@ sdEnabled= 1
 </xsl:text>
   </xsl:template>
 
-  <xsl:template mode="namevalue" match="Config/TrimType[text()='FMode']"><xsl:value-of select="name(.)" />=%0000003F
-</xsl:template>
-
-  <xsl:template mode="namevalue" match="Config/TrimType[text()='Common']"><xsl:value-of select="name(.)" />=%00000000
+  <xsl:template mode="namevalue" match="Config/TrimType"><xsl:value-of select="name(.)" />=<xsl:call-template name="mapTrimType"><xsl:with-param name="trimType" select="text()" /></xsl:call-template><xsl:text>
+</xsl:text>
 </xsl:template>
   
   <xsl:template mode="namevalue" match="Config/FrameRate"></xsl:template>
