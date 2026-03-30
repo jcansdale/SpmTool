@@ -144,22 +144,6 @@ Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:valu
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="mapServoDirection">
-    <xsl:param name="direction" />
-    <xsl:param name="servoName" />
-
-    <xsl:choose>
-      <xsl:when test="/SPM/Sail and $servoName='RFL'">
-        <xsl:choose>
-          <xsl:when test="$direction='Normal'">Reverse</xsl:when>
-          <xsl:when test="$direction='Reverse'">Normal</xsl:when>
-          <xsl:otherwise>UNKNOWN_<xsl:value-of select="$direction" /></xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise><xsl:value-of select="$direction" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template name="emitServoSpeed">
     <xsl:param name="speed" />
 
@@ -254,15 +238,6 @@ fmVox=%0055
 &lt;/FMode_Names&gt;
 
 </xsl:text>
-  </xsl:template>
-
-  <xsl:template name="mapTrimType">
-    <xsl:param name="trimType" />
-
-    <xsl:choose>
-      <xsl:when test="$trimType='FMode'">%0000003F</xsl:when>
-      <xsl:otherwise>%00000000</xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
 
   <xsl:template name="emitDifferentialBlock">
@@ -437,7 +412,7 @@ flonRight= <xsl:value-of select=".*10" />
   
   <!-- Reverse RFL servo -->
   <xsl:template mode="namevalue" match="Servo/direction">
-    <xsl:value-of select="name(.)" />= <xsl:call-template name="mapServoDirection"><xsl:with-param name="direction" select="text()" /><xsl:with-param name="servoName" select="../name" /></xsl:call-template>
+    <xsl:value-of select="name(.)" />= <xsl:value-of select="spm:MapServoDirection(text(), ../name/text(), boolean(/SPM/Sail))" />
 <xsl:text>
 </xsl:text>
   </xsl:template>
@@ -536,7 +511,7 @@ sdEnabled= 1
 </xsl:text>
   </xsl:template>
 
-  <xsl:template mode="namevalue" match="Config/TrimType"><xsl:value-of select="name(.)" />=<xsl:call-template name="mapTrimType"><xsl:with-param name="trimType" select="text()" /></xsl:call-template><xsl:text>
+  <xsl:template mode="namevalue" match="Config/TrimType"><xsl:value-of select="name(.)" />=<xsl:value-of select="spm:MapTrimType(text())" /><xsl:text>
 </xsl:text>
 </xsl:template>
   

@@ -2,6 +2,30 @@ namespace SpmTool
 {
     static class Dx8ToDx9ValueMapper
     {
+        public static string MapServoDirection(string direction, string servoName, bool isSail)
+        {
+            direction = direction?.Trim();
+            servoName = servoName?.Trim();
+
+            if (isSail && servoName == "RFL")
+            {
+                switch (direction)
+                {
+                    case "Normal": return "Reverse";
+                    case "Reverse": return "Normal";
+                    default: return "UNKNOWN_" + direction;
+                }
+            }
+
+            return direction;
+        }
+
+        public static string MapTrimType(string trimType)
+        {
+            trimType = trimType?.Trim();
+            return trimType == "FMode" ? "%0000003F" : "%00000000";
+        }
+
         public static string MapWarningFltMode(string fltMode, bool isSail)
         {
             fltMode = fltMode?.Trim();
@@ -236,6 +260,16 @@ namespace SpmTool
         public string MapWarningFlaps(string flaps)
         {
             return Dx8ToDx9ValueMapper.MapWarningFlaps(flaps);
+        }
+
+        public string MapServoDirection(string direction, string servoName, bool isSail)
+        {
+            return Dx8ToDx9ValueMapper.MapServoDirection(direction, servoName, isSail);
+        }
+
+        public string MapTrimType(string trimType)
+        {
+            return Dx8ToDx9ValueMapper.MapTrimType(trimType);
         }
     }
 }
