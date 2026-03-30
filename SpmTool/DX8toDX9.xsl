@@ -158,24 +158,6 @@ speedDown= <xsl:value-of select="$speed" />
 </xsl:text>
   </xsl:template>
 
-  <xsl:template name="emitTrainerMixRatio">
-mixOrNormal=%0000
-mixRatio:<xsl:for-each select="Active/Element">
-<xsl:text>  </xsl:text>
-  <xsl:choose>
-    <xsl:when test="text()='Enabled'">100</xsl:when>
-    <xsl:otherwise>0</xsl:otherwise>
-  </xsl:choose>
-</xsl:for-each>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
-
-  <xsl:template name="emitTrainerFooter">conditionID= 92
-MOverride=Disabled
-activePositions= 254
-</xsl:template>
-
   <xsl:template name="emitSailFModeNames">
       <xsl:text>&lt;FMode_Names&gt;
 [fmName]
@@ -398,7 +380,7 @@ flonRight= <xsl:value-of select=".*10" />
 <!-- Trainer -->
   <xsl:template mode="top" match="Trainer">&lt;<xsl:value-of select="name(.)" />&gt;
 <xsl:apply-templates mode="namevalue" select="Type" />
-<xsl:if test="Active"><xsl:call-template name="emitTrainerMixRatio" /></xsl:if><xsl:call-template name="emitTrainerFooter" />
+<xsl:value-of select="spm:BuildTrainerTail(Active/Element)" />
 &lt;/<xsl:value-of select="name(.)" />&gt;
 
 </xsl:template>

@@ -1,7 +1,34 @@
 namespace SpmTool
 {
+    using System.Text;
+    using System.Xml.XPath;
+
     static class Dx8ToDx9ValueMapper
     {
+        public static string BuildTrainerTail(XPathNodeIterator activeElements)
+        {
+            var builder = new StringBuilder();
+
+            if (activeElements != null && activeElements.Count > 0)
+            {
+                builder.Append("mixOrNormal=%0000\n");
+                builder.Append("mixRatio:");
+
+                while (activeElements.MoveNext())
+                {
+                    builder.Append("  ");
+                    builder.Append(activeElements.Current?.Value == "Enabled" ? "100" : "0");
+                }
+
+                builder.Append('\n');
+            }
+
+            builder.Append("conditionID= 92\n");
+            builder.Append("MOverride=Disabled\n");
+            builder.Append("activePositions= 254\n");
+            return builder.ToString();
+        }
+
         public static string BuildHeliFMode(string switchA, string switchB)
         {
             switchA = switchA?.Trim();
@@ -312,6 +339,11 @@ namespace SpmTool
         public string BuildHeliFMode(string switchA, string switchB)
         {
             return Dx8ToDx9ValueMapper.BuildHeliFMode(switchA, switchB);
+        }
+
+        public string BuildTrainerTail(XPathNodeIterator activeElements)
+        {
+            return Dx8ToDx9ValueMapper.BuildTrainerTail(activeElements);
         }
     }
 }
