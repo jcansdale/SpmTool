@@ -347,7 +347,7 @@ conditionID =145
 assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name="positionCount" select="4" /><xsl:with-param name="activePositions" select="/SPM/RAE-Mix/activePositions" /></xsl:call-template>
   
 <xsl:call-template name="emitCurvedata"><xsl:with-param name="index" select="0" /><xsl:with-param name="yValue" select="-1023" /></xsl:call-template></xsl:when>
-  <xsl:when test="/SPM/Sail/Motor"><xsl:variable name="sailSubTypeC"><xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template></xsl:variable>analogID =<xsl:value-of select="$sailSubTypeC" />
+  <xsl:when test="/SPM/Sail/Motor"><xsl:variable name="sailSubTypeC" select="spm:MapSailSubTypeC(/SPM/Sail/Motor/text(), /SPM/Sail/subTypeC/text())" />analogID =<xsl:value-of select="$sailSubTypeC" />
 conditionID =<xsl:value-of select="$sailSubTypeC" />
 assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name="positionCount" select="3" /><xsl:with-param name="activePositions" select="/SPM/RAE-Mix/activePositions" /></xsl:call-template>
   
@@ -365,9 +365,7 @@ assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name=
   <xsl:template mode="namevalue" match="ThroCurve/analogID">
     <xsl:choose>
       <xsl:when test="/SPM/Sail">
-        <xsl:value-of select="name(.)" />= <xsl:call-template name="subTypeC">
-           <xsl:with-param name="sail" select="/SPM/Sail" />
-        </xsl:call-template><xsl:text>
+        <xsl:value-of select="name(.)" />= <xsl:value-of select="spm:MapSailSubTypeC(/SPM/Sail/Motor/text(), /SPM/Sail/subTypeC/text())" /><xsl:text>
 </xsl:text>
       </xsl:when>
       <xsl:otherwise>
@@ -382,35 +380,12 @@ assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name=
     <xsl:choose>
       <xsl:when test="Motor='None'">Motor=None</xsl:when>
       <xsl:otherwise>Motor=Unsupported
-subTypeC=<xsl:call-template name="subTypeC">
-           <xsl:with-param name="sail" select="." />
-        </xsl:call-template>
+subTypeC=<xsl:value-of select="spm:MapSailSubTypeC(Motor/text(), subTypeC/text())" />
 </xsl:otherwise>
     </xsl:choose>
 &lt;/<xsl:value-of select="name(.)" />&gt;<xsl:text>
 
 </xsl:text></xsl:template>
-
-  <xsl:template name="subTypeC">
-    <xsl:param name="sail" />
-    
-    <xsl:choose>
-      <xsl:when test="$sail/Motor='None'">64</xsl:when>
-      <xsl:when test="$sail/Motor='SpoilStk'">64</xsl:when>
-      <xsl:when test="$sail/Motor='Gear'">82</xsl:when>
-      <xsl:when test="$sail/Motor='FModeSw'">83</xsl:when>
-      <xsl:when test="$sail/Motor='EleDR'">84</xsl:when>
-      <xsl:when test="$sail/Motor='Flap'">85</xsl:when>
-      <xsl:when test="$sail/Motor='Aux2'">86</xsl:when>
-      <xsl:when test="$sail/Motor='AilDR'">87</xsl:when>
-      <xsl:when test="$sail/Motor='RudDR'">88</xsl:when>
-      <xsl:when test="$sail/Motor='Mix'">89</xsl:when>
-      <xsl:when test="$sail/Motor='Trainer'">92</xsl:when>
-      <xsl:when test="$sail/Motor='Unsupported' and $sail/subTypeC='68'">112</xsl:when> <!-- LTrimD -->
-      <xsl:when test="$sail/Motor='Unsupported' and $sail/subTypeC='69'">113</xsl:when> <!-- RTrimD -->
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select="$sail/Motor" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
    
   <xsl:template mode="namevalue" match="efItem/flapUp|efItem/flapDown|efItem/flonUp|efItem/flonDown"><xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name"><xsl:choose><xsl:when test="self::flapUp">flapLeft</xsl:when><xsl:when test="self::flapDown">flapRight</xsl:when><xsl:when test="self::flonUp">flonLeft</xsl:when><xsl:otherwise>flonRight</xsl:otherwise></xsl:choose></xsl:with-param><xsl:with-param name="value" select="." /></xsl:call-template></xsl:template>
   

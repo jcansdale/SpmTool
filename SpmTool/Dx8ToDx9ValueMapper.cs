@@ -2,6 +2,36 @@ namespace SpmTool
 {
     static class Dx8ToDx9ValueMapper
     {
+        public static string MapSailSubTypeC(string motor, string subTypeC)
+        {
+            motor = motor?.Trim();
+            subTypeC = subTypeC?.Trim();
+
+            switch (motor)
+            {
+                case "None": return "64";
+                case "SpoilStk": return "64";
+                case "Gear": return "82";
+                case "FModeSw": return "83";
+                case "EleDR": return "84";
+                case "Flap": return "85";
+                case "Aux2": return "86";
+                case "AilDR": return "87";
+                case "RudDR": return "88";
+                case "Mix": return "89";
+                case "Trainer": return "92";
+                case "Unsupported":
+                    switch (subTypeC)
+                    {
+                        case "68": return "112";
+                        case "69": return "113";
+                        default: return "UNKNOWN_" + motor;
+                    }
+                default:
+                    return "UNKNOWN_" + motor;
+            }
+        }
+
         public static string MapValue(string value, string generator, string tail, string wing)
         {
             value = value?.Trim();
@@ -103,6 +133,11 @@ namespace SpmTool
         public string MapValue(string value, string generator, string tail, string wing)
         {
             return Dx8ToDx9ValueMapper.MapValue(value, generator, tail, wing);
+        }
+
+        public string MapSailSubTypeC(string motor, string subTypeC)
+        {
+            return Dx8ToDx9ValueMapper.MapSailSubTypeC(motor, subTypeC);
         }
     }
 }
