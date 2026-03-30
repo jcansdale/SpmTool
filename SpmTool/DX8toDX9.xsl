@@ -217,6 +217,19 @@ speedDown= <xsl:value-of select="$speed" />
 </xsl:text>
   </xsl:template>
 
+  <xsl:template name="emitMirroredValueLines">
+    <xsl:param name="name" />
+    <xsl:param name="value" />
+    <xsl:param name="mirroredValue" />
+
+<xsl:value-of select="$name" /> =<xsl:value-of select="$value" />
+<xsl:text>
+</xsl:text>
+<xsl:value-of select="$name" />R =<xsl:value-of select="$mirroredValue" />
+<xsl:text>
+</xsl:text>
+  </xsl:template>
+
   <xsl:template name="emitTrainerMixRatio">
 mixOrNormal=%0000
 mixRatio:<xsl:for-each select="Active/Element">
@@ -556,17 +569,7 @@ sdEnabled= 1
 </xsl:text>
 </xsl:template>
   
-  <xsl:template mode="namevalue" match="RAE-Mix/percentAileron|RAE-Mix/percentElevator">
-<xsl:value-of select="name(.)" /> =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-<xsl:value-of select="name(.)" />R =<xsl:choose>
-    <xsl:when test="self::percentElevator"><xsl:value-of select="-text()" /></xsl:when>
-    <xsl:otherwise><xsl:value-of select="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="RAE-Mix/percentAileron|RAE-Mix/percentElevator"><xsl:call-template name="emitMirroredValueLines"><xsl:with-param name="name" select="name(.)" /><xsl:with-param name="value" select="text()" /><xsl:with-param name="mirroredValue"><xsl:choose><xsl:when test="self::percentElevator"><xsl:value-of select="-text()" /></xsl:when><xsl:otherwise><xsl:value-of select="text()" /></xsl:otherwise></xsl:choose></xsl:with-param></xsl:call-template></xsl:template>
 
   <xsl:template mode="top" match="C-Mix|S-Mix">&lt;<xsl:value-of select="name(.)" />&gt;
 <xsl:apply-templates mode="namevalue" select="*" />conditionID= 145
