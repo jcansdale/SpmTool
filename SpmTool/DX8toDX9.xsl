@@ -74,6 +74,60 @@ masterVolume= <xsl:value-of select="$masterVolume" />
 <xsl:apply-templates mode="namevalue" select="*" />&lt;/<xsl:value-of select="name(.)" />&gt;
 
 </xsl:template>
+
+  <xsl:template name="emitAssignedCurve">
+    <xsl:param name="positionCount" />
+    <xsl:param name="activePositions" />
+
+    <xsl:choose>
+      <xsl:when test="$positionCount=4">
+        <xsl:choose>
+          <xsl:when test="$activePositions='%0000'">0 0 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0001'">1 0 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0002'">0 1 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0003'">1 1 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0004'">0 0 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0005'">1 0 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0006'">0 1 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0007'">1 1 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0008'">0 0 0 1</xsl:when>
+          <xsl:when test="$activePositions='%0009'">1 0 0 1</xsl:when>
+          <xsl:when test="$activePositions='%000A'">0 1 0 1</xsl:when>
+          <xsl:when test="$activePositions='%000B'">1 1 0 1</xsl:when>
+          <xsl:when test="$activePositions='%000C'">0 0 1 1</xsl:when>
+          <xsl:when test="$activePositions='%000D'">1 0 1 1</xsl:when>
+          <xsl:when test="$activePositions='%000E'">0 1 1 1</xsl:when>
+          <xsl:when test="$activePositions='%000F'">1 1 1 1</xsl:when>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="$activePositions='%0000'">0 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0001'">1 0 0</xsl:when>
+          <xsl:when test="$activePositions='%0002'">0 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0003'">1 1 0</xsl:when>
+          <xsl:when test="$activePositions='%0004'">0 0 1</xsl:when>
+          <xsl:when test="$activePositions='%0005'">1 0 1</xsl:when>
+          <xsl:when test="$activePositions='%0006'">0 1 1</xsl:when>
+          <xsl:when test="$activePositions='%0007'">1 1 1</xsl:when>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="emitCurvedata">
+    <xsl:param name="index" />
+    <xsl:param name="yValue" />
+
+[Curvedata]
+*Index= <xsl:value-of select="$index" />
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> 0 0
+[/Curvedata]</xsl:template>
   
 <!-- Sail -->
   
@@ -83,66 +137,16 @@ masterVolume= <xsl:value-of select="$masterVolume" />
 conditionID =0</xsl:when>
   <xsl:when test="/SPM/Sail/Motor='SpoilStk'">analogID =64
 conditionID =145
-assignedCurve: <xsl:choose>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0000'">0 0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0001'">1 0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0002'">0 1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0003'">1 1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0004'">0 0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0005'">1 0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0006'">0 1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0007'">1 1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0008'">0 0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0009'">1 0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000A'">0 1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000B'">1 1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000C'">0 0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000D'">1 0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000E'">0 1 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000F'">1 1 1 1</xsl:when>
-</xsl:choose>
+assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name="positionCount" select="4" /><xsl:with-param name="activePositions" select="/SPM/RAE-Mix/activePositions" /></xsl:call-template>
   
-[Curvedata]
-*Index= 0
-points= 5
-Expo=Disabled
-trimActive=Disabled
-curved=Enabled
-X: -1023 -511 0 511 1023 0 0
-Y: -1023 -1023 -1023 -1023 -1023 0 0
-[/Curvedata]</xsl:when>
-  <xsl:when test="/SPM/Sail/Motor">analogID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
-conditionID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
-assignedCurve: <xsl:choose>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0000'">0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0001'">1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0002'">0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0003'">1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0004'">0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0005'">1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0006'">0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0007'">1 1 1</xsl:when>
-</xsl:choose>
+<xsl:call-template name="emitCurvedata"><xsl:with-param name="index" select="0" /><xsl:with-param name="yValue" select="-1023" /></xsl:call-template></xsl:when>
+  <xsl:when test="/SPM/Sail/Motor"><xsl:variable name="sailSubTypeC"><xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template></xsl:variable>analogID =<xsl:value-of select="$sailSubTypeC" />
+conditionID =<xsl:value-of select="$sailSubTypeC" />
+assignedCurve: <xsl:call-template name="emitAssignedCurve"><xsl:with-param name="positionCount" select="3" /><xsl:with-param name="activePositions" select="/SPM/RAE-Mix/activePositions" /></xsl:call-template>
   
-[Curvedata]
-*Index= 0
-points= 5
-Expo=Disabled
-trimActive=Disabled
-curved=Enabled
-X: -1023 -511 0 511 1023 0 0
-Y: -1023 -1023 -1023 -1023 -1023 0 0
-[/Curvedata]
+<xsl:call-template name="emitCurvedata"><xsl:with-param name="index" select="0" /><xsl:with-param name="yValue" select="-1023" /></xsl:call-template>
 
-[Curvedata]
-*Index= 1
-points= 5
-Expo=Disabled
-trimActive=Disabled
-curved=Enabled
-X: -1023 -511 0 511 1023 0 0
-Y: 1023 1023 1023 1023 1023 0 0
-[/Curvedata]</xsl:when>
+<xsl:call-template name="emitCurvedata"><xsl:with-param name="index" select="1" /><xsl:with-param name="yValue" select="1023" /></xsl:call-template></xsl:when>
       <xsl:otherwise><xsl:apply-templates mode="namevalue" select="*" /></xsl:otherwise>
     </xsl:choose>
 &lt;/<xsl:value-of select="name(.)" />&gt;
