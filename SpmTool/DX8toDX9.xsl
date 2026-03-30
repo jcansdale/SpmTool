@@ -250,7 +250,7 @@ subTypeC=<xsl:call-template name="subTypeC">
   </xsl:choose>
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="CamberPreset/cpItem[@Type='Object']">
+  <xsl:template mode="namevalue" match="CamberPreset/cpItem[@Type='Object']|CamberMix/csItem[@Type='Object']">
 [efItem]
 <xsl:apply-templates mode="namevalue" select="*" />[/efItem]
 </xsl:template>
@@ -277,11 +277,6 @@ flonRight= <xsl:value-of select=".*10" />
   <xsl:template mode="namevalue" match="CamberPreset/cpItem/elevator">elevator= <xsl:value-of select=".*10" />
 <xsl:text>
 </xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/csItem[@Type='Object']">
-[efItem]
-<xsl:apply-templates mode="namevalue" select="*" />[/efItem]
 </xsl:template>
   
   <xsl:template mode="namevalue" match="CamberMix/conditionID">conditionID= 145
@@ -629,39 +624,21 @@ vSource=</xsl:text>
 </xsl:text>
   </xsl:template>
    
-<!-- Invert subtrim when reversed for old versions -->
-  <xsl:template mode="namevalue" match="Servo/subTrim">
-    <xsl:choose>  
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
-
-<!-- Swap and invert travelHigh when reversed for old versions -->
-  <xsl:template mode="namevalue" match="Servo/travelLow">
+<!-- Invert servo values when reversed for old DX8/DX7S versions -->
+  <xsl:template mode="namevalue" match="Servo[direction='Reverse']/*[self::subTrim or self::travelLow or self::travelHigh]">
     <xsl:choose>
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelHigh/text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
-
-<!-- Swap and invert travelLow when reversed for old versions -->
-  <xsl:template mode="namevalue" match="Servo/travelHigh">
-    <xsl:choose>
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelLow/text()" />
+      <xsl:when test="(/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)">
+        <xsl:choose>
+          <xsl:when test="self::subTrim">
+            <xsl:value-of select="name(.)" />= <xsl:value-of select="-text()" />
+          </xsl:when>
+          <xsl:when test="self::travelLow">
+            <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelHigh/text()" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelLow/text()" />
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
