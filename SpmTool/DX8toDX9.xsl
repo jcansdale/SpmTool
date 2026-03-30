@@ -128,6 +128,39 @@ curved=Enabled
 X: -1023 -511 0 511 1023 0 0
 Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> 0 0
 [/Curvedata]</xsl:template>
+
+  <xsl:template name="mapWarningFltMode">
+    <xsl:param name="fltMode" />
+
+    <xsl:choose>
+      <xsl:when test="/SPM/Sail">
+        <xsl:value-of select="$fltMode" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="$fltMode='%0000'">%0000</xsl:when>
+          <xsl:when test="$fltMode='%0020'">%0004</xsl:when>
+          <xsl:when test="$fltMode='%0040'">%0008</xsl:when>
+          <xsl:when test="$fltMode='%0060'">%000C</xsl:when>
+          <xsl:when test="$fltMode='%0080'">%0000</xsl:when>
+          <xsl:when test="$fltMode='%00A0'">%0004</xsl:when>
+          <xsl:when test="$fltMode='%00C0'">%0008</xsl:when>
+          <xsl:when test="$fltMode='%00E0'">%000C</xsl:when>
+          <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$fltMode" /></xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="mapWarningHold">
+    <xsl:param name="fltMode" />
+
+    <xsl:choose>
+      <xsl:when test="$fltMode='%0000' or $fltMode='%0020' or $fltMode='%0040' or $fltMode='%0060'">%0000</xsl:when>
+      <xsl:when test="$fltMode='%0080' or $fltMode='%00A0' or $fltMode='%00C0' or $fltMode='%00E0'">%0002</xsl:when>
+      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="$fltMode" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   
 <!-- Sail -->
   
@@ -489,37 +522,10 @@ fmVox=%0055
   
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/FltMode">FltMode=<xsl:choose>
-      <xsl:when test="/SPM/Sail">
-        <xsl:value-of select="text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="text()='%0000'">%0000</xsl:when>
-          <xsl:when test="text()='%0020'">%0004</xsl:when>
-          <xsl:when test="text()='%0040'">%0008</xsl:when>
-          <xsl:when test="text()='%0060'">%000C</xsl:when>
-          <xsl:when test="text()='%0080'">%0000</xsl:when>
-          <xsl:when test="text()='%00A0'">%0004</xsl:when>
-          <xsl:when test="text()='%00C0'">%0008</xsl:when>
-          <xsl:when test="text()='%00E0'">%000C</xsl:when>
-          <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
+  <xsl:template mode="namevalue" match="Warning/FltMode">FltMode=<xsl:call-template name="mapWarningFltMode"><xsl:with-param name="fltMode" select="text()" /></xsl:call-template>
 <xsl:text>
 </xsl:text>
-    <xsl:if test="/SPM/Heli">Hold=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0020'">%0000</xsl:when>
-    <xsl:when test="text()='%0040'">%0000</xsl:when>
-    <xsl:when test="text()='%0060'">%0000</xsl:when>
-    <xsl:when test="text()='%0080'">%0002</xsl:when>
-    <xsl:when test="text()='%00A0'">%0002</xsl:when>
-    <xsl:when test="text()='%00C0'">%0002</xsl:when>
-    <xsl:when test="text()='%00E0'">%0002</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
+    <xsl:if test="/SPM/Heli">Hold=<xsl:call-template name="mapWarningHold"><xsl:with-param name="fltMode" select="text()" /></xsl:call-template>
 <xsl:text>
 </xsl:text></xsl:if> 
 </xsl:template>
