@@ -208,6 +208,15 @@ speed= <xsl:value-of select="$speed" />
 speedDown= <xsl:value-of select="$speed" />
   </xsl:template>
 
+  <xsl:template name="emitNamedValueLine">
+    <xsl:param name="name" />
+    <xsl:param name="value" />
+
+<xsl:value-of select="$name" />= <xsl:value-of select="$value" />
+<xsl:text>
+</xsl:text>
+  </xsl:template>
+
   <xsl:template name="emitTrainerMixRatio">
 mixOrNormal=%0000
 mixRatio:<xsl:for-each select="Active/Element">
@@ -374,25 +383,7 @@ subTypeC=<xsl:call-template name="subTypeC">
     </xsl:choose>
   </xsl:template>
    
-  <xsl:template mode="namevalue" match="efItem/flapUp">flapLeft= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flapDown">flapRight= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flonUp">flonLeft= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flonDown">flonRight= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="efItem/flapUp|efItem/flapDown|efItem/flonUp|efItem/flonDown"><xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name"><xsl:choose><xsl:when test="self::flapUp">flapLeft</xsl:when><xsl:when test="self::flapDown">flapRight</xsl:when><xsl:when test="self::flonUp">flonLeft</xsl:when><xsl:otherwise>flonRight</xsl:otherwise></xsl:choose></xsl:with-param><xsl:with-param name="value" select="." /></xsl:call-template></xsl:template>
   
 <xsl:template mode="top" match="Differential">
   <xsl:choose>
