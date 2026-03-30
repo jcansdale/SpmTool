@@ -1,0 +1,70 @@
+name: Build CLI Packages
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore test project
+        run: dotnet restore SpmTool.Tests/SpmTool.Tests.csproj
+
+      - name: Run tests
+        run: dotnet test SpmTool.Tests/SpmTool.Tests.csproj --framework net9.0 --no-restore
+
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rid:
+          - linux-x64
+          - win-x64
+          - osx-x64
+          - osx-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Publish CLI
+        run: >-
+          dotnet publish SpmTool/SpmTool.csproj
+          -c Release
+          -f net9.0
+          -r ${{ matrix.rid }}
+          --self-contained true
+          /p:PublishSingleFile=true
+          /p:DebugType=None
+          /p:DebugSymbols=false
+          -o ${{ github.workspace }}/artifacts/${{ matrix.rid }}
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spmtool-${{ matrix.rid }}
+          path: ${{ github.workspace }}/artifacts/${{ matrix.rid }}
+          if-no-files-found: error
