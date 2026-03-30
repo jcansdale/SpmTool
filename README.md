@@ -11,6 +11,8 @@ SpmTool contains the core conversion logic plus two front-ends:
 
 The conversion engine supports DX8/DX9 conversion in the core API, while the web front-end also contains DX18 and DX7S-specific workflow logic.
 
+Status: The hosted ASP.NET Web Forms application is currently the easiest way for most users to use SpmTool. The shared conversion engine is also available through the command-line tool, which is better suited to technically savvy users, testing, and automation.
+
 ## Features
 
 - Convert Spektrum SPM files using a shared C# conversion engine
