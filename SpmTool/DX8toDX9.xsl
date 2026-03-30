@@ -186,6 +186,28 @@ Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:valu
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="mapServoVSource">
+    <xsl:param name="servoName" />
+    <xsl:param name="servoIndex" />
+
+    <xsl:choose>
+      <xsl:when test="$servoName='LEL' and (/SPM/Acro/Tail='Dual_Rud_Ele' or /SPM/Acro/Tail='Dual_Ele')">8</xsl:when>
+      <xsl:when test="$servoName='LRU' and (/SPM/Spektrum/Generator='DX7S' and /SPM/Acro/Tail='Dual_Rud')">7</xsl:when>
+      <xsl:when test="$servoName='MOT' and (/SPM/Sail/Wing='Ail_2_Flap_1' or /SPM/Sail/Wing='Ail_2_Flap_2')">6</xsl:when>
+      <xsl:when test="$servoName='LAL' and (/SPM/Sail/Wing='Ail_2_Flap_1' or /SPM/Sail/Wing='Ail_2_Flap_2')">0</xsl:when>
+      <xsl:when test="$servoName='RFL' and /SPM/Sail/Wing='Ail_2_Flap_2'">4</xsl:when>
+      <xsl:when test="$servoName='LFL' and /SPM/Sail/Wing='Ail_2_Flap_2'">5</xsl:when>
+      <xsl:otherwise><xsl:value-of select="$servoIndex" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="emitServoSpeed">
+    <xsl:param name="speed" />
+
+speed= <xsl:value-of select="$speed" />
+speedDown= <xsl:value-of select="$speed" />
+  </xsl:template>
+
   <xsl:template name="emitTrainerMixRatio">
 mixOrNormal=%0000
 mixRatio:<xsl:for-each select="Active/Element">
@@ -628,16 +650,7 @@ sdEnabled= 1
   <xsl:template mode="namevalue" match="Servo/name">
     <xsl:value-of select="name(.)" />=<xsl:value-of select="." />
 <xsl:text>
-vSource=</xsl:text>
-    <xsl:choose>
-      <xsl:when test="text()='LEL' and (/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">8</xsl:when>
-      <xsl:when test="text()='LRU' and (/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">7</xsl:when>
-      <xsl:when test="text()='MOT' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">6</xsl:when>
-      <xsl:when test="text()='LAL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">0</xsl:when>
-      <xsl:when test="text()='RFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">4</xsl:when>
-      <xsl:when test="text()='LFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">5</xsl:when>
-      <xsl:otherwise><xsl:value-of select="../Index/text()" /></xsl:otherwise>
-    </xsl:choose>
+vSource=</xsl:text><xsl:call-template name="mapServoVSource"><xsl:with-param name="servoName" select="text()" /><xsl:with-param name="servoIndex" select="../Index/text()" /></xsl:call-template>
 <xsl:text>
 </xsl:text>
   </xsl:template>
@@ -667,10 +680,7 @@ vSource=</xsl:text>
   </xsl:template>
 
 <!-- Copy speed to downSpeed -->
-  <xsl:template mode="namevalue" match="Servo/speed">
-    <xsl:value-of select="name(.)" />= <xsl:value-of select="." />
-speedDown= <xsl:value-of select="." />
-<xsl:text>
+  <xsl:template mode="namevalue" match="Servo/speed"><xsl:call-template name="emitServoSpeed"><xsl:with-param name="speed" select="." /></xsl:call-template><xsl:text>
 </xsl:text>
   </xsl:template>
 
