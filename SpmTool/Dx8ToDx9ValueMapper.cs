@@ -2,6 +2,20 @@ namespace SpmTool
 {
     static class Dx8ToDx9ValueMapper
     {
+        public static string BuildHeliFMode(string switchA, string switchB)
+        {
+            switchA = switchA?.Trim();
+            switchB = switchB?.Trim();
+
+            return
+                "switch_a= " + switchA + "\n" +
+                "switch_b= 0\n" +
+                "switch_c= " + switchB + "\n" +
+                "size= 18\n" +
+                "fmtable: 1 1 1 1 1 1 2 2 2 2 2 2 3 4 4 3 4 4\n" +
+                "activePositions=%0006\n";
+        }
+
         public static string MapServoVSource(string servoName, string servoIndex, string generator, string tail, string wing)
         {
             servoName = servoName?.Trim();
@@ -293,6 +307,11 @@ namespace SpmTool
         public string MapServoVSource(string servoName, string servoIndex, string generator, string tail, string wing)
         {
             return Dx8ToDx9ValueMapper.MapServoVSource(servoName, servoIndex, generator, tail, wing);
+        }
+
+        public string BuildHeliFMode(string switchA, string switchB)
+        {
+            return Dx8ToDx9ValueMapper.BuildHeliFMode(switchA, switchB);
         }
     }
 }

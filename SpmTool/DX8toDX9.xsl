@@ -176,19 +176,6 @@ MOverride=Disabled
 activePositions= 254
 </xsl:template>
 
-  <xsl:template name="emitHeliFMode">
-    <xsl:param name="switchA" />
-    <xsl:param name="switchB" />
-
-switch_a= <xsl:value-of select="$switchA" />
-switch_b= 0
-switch_c= <xsl:value-of select="$switchB" />
-size= 18
-fmtable: 1 1 1 1 1 1 2 2 2 2 2 2 3 4 4 3 4 4
-activePositions=%0006<xsl:text>
-</xsl:text>
-  </xsl:template>
-
   <xsl:template name="emitSailFModeNames">
       <xsl:text>&lt;FMode_Names&gt;
 [fmName]
@@ -429,7 +416,7 @@ sdEnabled= 1
   <!-- Use DX8 FMode switch -->
   <xsl:template mode="top" match="FMode">&lt;<xsl:value-of select="name(.)" />&gt;
 <xsl:choose>
-    <xsl:when test="/SPM/Heli"><xsl:variable name="mappedSwitchA"><xsl:apply-templates mode="mapvalue" select="switch_a" /></xsl:variable><xsl:variable name="mappedSwitchB"><xsl:apply-templates mode="mapvalue" select="switch_b" /></xsl:variable><xsl:call-template name="emitHeliFMode"><xsl:with-param name="switchA" select="$mappedSwitchA" /><xsl:with-param name="switchB" select="$mappedSwitchB" /></xsl:call-template></xsl:when>
+    <xsl:when test="/SPM/Heli"><xsl:variable name="mappedSwitchA"><xsl:apply-templates mode="mapvalue" select="switch_a" /></xsl:variable><xsl:variable name="mappedSwitchB"><xsl:apply-templates mode="mapvalue" select="switch_b" /></xsl:variable><xsl:value-of select="spm:BuildHeliFMode($mappedSwitchA, $mappedSwitchB)" /></xsl:when>
       <xsl:otherwise><xsl:apply-templates mode="namevalue" select="switch_a|switch_b|switch_c|size|data" /></xsl:otherwise>
     </xsl:choose>&lt;/<xsl:value-of select="name(.)" />&gt;<xsl:text>
     
