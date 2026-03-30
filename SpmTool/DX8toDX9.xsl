@@ -287,22 +287,13 @@ flonRight= <xsl:value-of select=".*10" />
 </xsl:text>
 </xsl:template>
   
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flapUp">
-    <xsl:text>flapLeft= </xsl:text>
+  <xsl:template mode="namevalue" match="CamberMix/csItem/flapUp|CamberMix/csItem/flapDown">
+    <xsl:text>flap</xsl:text>
     <xsl:choose>
-      <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
-        <xsl:value-of select="round(.*100 div 1024)*100" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="round(.*100 div 1024)*10" />
-      </xsl:otherwise>
+      <xsl:when test="self::flapUp">Left</xsl:when>
+      <xsl:otherwise>Right</xsl:otherwise>
     </xsl:choose>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
-
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flapDown">
-    <xsl:text>flapRight= </xsl:text>
+    <xsl:text>= </xsl:text>
     <xsl:choose>
       <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
         <xsl:value-of select="round(.*100 div 1024)*100" />
@@ -315,12 +306,10 @@ flonRight= <xsl:value-of select=".*10" />
 </xsl:text>
   </xsl:template>
   
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flonUp">flonLeft= <xsl:value-of select="-round(.*100 div 1024)*10" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flonDown">flonRight= <xsl:value-of select="-round(.*100 div 1024)*10" />
+  <xsl:template mode="namevalue" match="CamberMix/csItem/flonUp|CamberMix/csItem/flonDown">flon<xsl:choose>
+    <xsl:when test="self::flonUp">Left</xsl:when>
+    <xsl:otherwise>Right</xsl:otherwise>
+  </xsl:choose>= <xsl:value-of select="-round(.*100 div 1024)*10" />
 <xsl:text>
 </xsl:text>
 </xsl:template>
@@ -336,12 +325,7 @@ flonRight= <xsl:value-of select=".*10" />
 </xsl:text>
   </xsl:template>
 
-  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/left">left1= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/right">right1= <xsl:value-of select="." />
+  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/left|AR-Mix-S/arafItem/right"><xsl:value-of select="name(.)" />1= <xsl:value-of select="." />
 <xsl:text>
 </xsl:text>
 </xsl:template>
@@ -483,20 +467,14 @@ fmVox=%0055
 </xsl:text>
 </xsl:template>
   
-  <xsl:template mode="namevalue" match="RAE-Mix/percentAileron">
+  <xsl:template mode="namevalue" match="RAE-Mix/percentAileron|RAE-Mix/percentElevator">
 <xsl:value-of select="name(.)" /> =<xsl:value-of select="text()" />
 <xsl:text>
 </xsl:text>
-<xsl:value-of select="name(.)" />R =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="RAE-Mix/percentElevator">
-<xsl:value-of select="name(.)" /> =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-<xsl:value-of select="name(.)" />R =<xsl:value-of select="-text()" />
+<xsl:value-of select="name(.)" />R =<xsl:choose>
+    <xsl:when test="self::percentElevator"><xsl:value-of select="-text()" /></xsl:when>
+    <xsl:otherwise><xsl:value-of select="text()" /></xsl:otherwise>
+  </xsl:choose>
 <xsl:text>
 </xsl:text>
 </xsl:template>
