@@ -102,7 +102,15 @@ assignedCurve: <xsl:choose>
   <xsl:when test="/SPM/RAE-Mix/activePositions='%000F'">1 1 1 1</xsl:when>
 </xsl:choose>
   
-[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: -1023 -1023 -1023 -1023 -1023 0 0[/Curvedata]</xsl:when>
+[Curvedata]
+*Index= 0
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: -1023 -1023 -1023 -1023 -1023 0 0
+[/Curvedata]</xsl:when>
   <xsl:when test="/SPM/Sail/Motor">analogID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
 conditionID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
 assignedCurve: <xsl:choose>
@@ -116,7 +124,25 @@ assignedCurve: <xsl:choose>
   <xsl:when test="/SPM/RAE-Mix/activePositions='%0007'">1 1 1</xsl:when>
 </xsl:choose>
   
-[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: -1023 -1023 -1023 -1023 -1023 0 0[/Curvedata][Curvedata]*Index= 1points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: 1023 1023 1023 1023 1023 0 0[/Curvedata]</xsl:when>
+[Curvedata]
+*Index= 0
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: -1023 -1023 -1023 -1023 -1023 0 0
+[/Curvedata]
+
+[Curvedata]
+*Index= 1
+points= 5
+Expo=Disabled
+trimActive=Disabled
+curved=Enabled
+X: -1023 -511 0 511 1023 0 0
+Y: 1023 1023 1023 1023 1023 0 0
+[/Curvedata]</xsl:when>
       <xsl:otherwise><xsl:apply-templates mode="namevalue" select="*" /></xsl:otherwise>
     </xsl:choose>
 &lt;/<xsl:value-of select="name(.)" />&gt;
@@ -413,7 +439,37 @@ activePositions=%0006<xsl:text>
     
 </xsl:text>
     <xsl:if test="/SPM/Sail">
-      <xsl:text>&lt;FMode_Names&gt;[fmName]*Index= 0display="Launch"fmVox=%0053[/fmName][fmName]*Index= 1display="Cruise"fmVox=%0054[/fmName][fmName]*Index= 2display="Thermal"fmVox=%0056[/fmName][fmName]*Index= 3display="Speed"fmVox=%0057[/fmName][fmName]*Index= 4display="Land"fmVox=%0055[/fmName]&lt;/FMode_Names&gt;
+      <xsl:text>&lt;FMode_Names&gt;
+[fmName]
+*Index= 0
+display="Launch"
+fmVox=%0053
+[/fmName]
+
+[fmName]
+*Index= 1
+display="Cruise"
+fmVox=%0054
+[/fmName]
+
+[fmName]
+*Index= 2
+display="Thermal"
+fmVox=%0056
+[/fmName]
+
+[fmName]
+*Index= 3
+display="Speed"
+fmVox=%0057
+[/fmName]
+
+[fmName]
+*Index= 4
+display="Land"
+fmVox=%0055
+[/fmName]
+&lt;/FMode_Names&gt;
 
 </xsl:text>
     </xsl:if>
@@ -491,29 +547,6 @@ activePositions=%0006<xsl:text>
 </xsl:text></xsl:if> 
 </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
   <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
     <xsl:when test="text()='%0000'">%0000</xsl:when>
     <xsl:when test="text()='%0001'">%0002</xsl:when>
