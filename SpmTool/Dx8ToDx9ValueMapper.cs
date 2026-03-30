@@ -2,6 +2,24 @@ namespace SpmTool
 {
     static class Dx8ToDx9ValueMapper
     {
+        public static string MapServoVSource(string servoName, string servoIndex, string generator, string tail, string wing)
+        {
+            servoName = servoName?.Trim();
+            servoIndex = servoIndex?.Trim();
+            generator = generator?.Trim();
+            tail = tail?.Trim();
+            wing = wing?.Trim();
+
+            if (servoName == "LEL" && IsDualEleTail(tail)) return "8";
+            if (servoName == "LRU" && generator == "DX7S" && tail == "Dual_Rud") return "7";
+            if (servoName == "MOT" && IsSailFlapWing(wing)) return "6";
+            if (servoName == "LAL" && IsSailFlapWing(wing)) return "0";
+            if (servoName == "RFL" && wing == "Ail_2_Flap_2") return "4";
+            if (servoName == "LFL" && wing == "Ail_2_Flap_2") return "5";
+
+            return servoIndex;
+        }
+
         public static string MapServoDirection(string direction, string servoName, bool isSail)
         {
             direction = direction?.Trim();
@@ -270,6 +288,11 @@ namespace SpmTool
         public string MapTrimType(string trimType)
         {
             return Dx8ToDx9ValueMapper.MapTrimType(trimType);
+        }
+
+        public string MapServoVSource(string servoName, string servoIndex, string generator, string tail, string wing)
+        {
+            return Dx8ToDx9ValueMapper.MapServoVSource(servoName, servoIndex, generator, tail, wing);
         }
     }
 }

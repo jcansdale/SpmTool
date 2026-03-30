@@ -129,21 +129,6 @@ X: -1023 -511 0 511 1023 0 0
 Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> 0 0
 [/Curvedata]</xsl:template>
 
-  <xsl:template name="mapServoVSource">
-    <xsl:param name="servoName" />
-    <xsl:param name="servoIndex" />
-
-    <xsl:choose>
-      <xsl:when test="$servoName='LEL' and (/SPM/Acro/Tail='Dual_Rud_Ele' or /SPM/Acro/Tail='Dual_Ele')">8</xsl:when>
-      <xsl:when test="$servoName='LRU' and (/SPM/Spektrum/Generator='DX7S' and /SPM/Acro/Tail='Dual_Rud')">7</xsl:when>
-      <xsl:when test="$servoName='MOT' and (/SPM/Sail/Wing='Ail_2_Flap_1' or /SPM/Sail/Wing='Ail_2_Flap_2')">6</xsl:when>
-      <xsl:when test="$servoName='LAL' and (/SPM/Sail/Wing='Ail_2_Flap_1' or /SPM/Sail/Wing='Ail_2_Flap_2')">0</xsl:when>
-      <xsl:when test="$servoName='RFL' and /SPM/Sail/Wing='Ail_2_Flap_2'">4</xsl:when>
-      <xsl:when test="$servoName='LFL' and /SPM/Sail/Wing='Ail_2_Flap_2'">5</xsl:when>
-      <xsl:otherwise><xsl:value-of select="$servoIndex" /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template name="emitServoSpeed">
     <xsl:param name="speed" />
 
@@ -542,7 +527,7 @@ sdEnabled= 1
   <xsl:template mode="namevalue" match="Servo/name">
     <xsl:value-of select="name(.)" />=<xsl:value-of select="." />
 <xsl:text>
-vSource=</xsl:text><xsl:call-template name="mapServoVSource"><xsl:with-param name="servoName" select="text()" /><xsl:with-param name="servoIndex" select="../Index/text()" /></xsl:call-template>
+vSource=</xsl:text><xsl:value-of select="spm:MapServoVSource(text(), ../Index/text(), /SPM/Spektrum/Generator/text(), /SPM/Acro/Tail/text(), /SPM/Sail/Wing/text())" />
 <xsl:text>
 </xsl:text>
   </xsl:template>
