@@ -201,6 +201,22 @@ Y: <xsl:value-of select="$yValue" /> <xsl:value-of select="$yValue" /> <xsl:valu
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="mapServoDirection">
+    <xsl:param name="direction" />
+    <xsl:param name="servoName" />
+
+    <xsl:choose>
+      <xsl:when test="/SPM/Sail and $servoName='RFL'">
+        <xsl:choose>
+          <xsl:when test="$direction='Normal'">Reverse</xsl:when>
+          <xsl:when test="$direction='Reverse'">Normal</xsl:when>
+          <xsl:otherwise>UNKNOWN_<xsl:value-of select="$direction" /></xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise><xsl:value-of select="$direction" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="emitServoSpeed">
     <xsl:param name="speed" />
 
@@ -503,18 +519,7 @@ flonRight= <xsl:value-of select=".*10" />
   
   <!-- Reverse RFL servo -->
   <xsl:template mode="namevalue" match="Servo/direction">
-    <xsl:choose>  
-      <xsl:when test="/SPM/Sail and ../name='RFL'">
-        <xsl:value-of select="name(.)" />= <xsl:choose>
-          <xsl:when test=".='Normal'">Reverse</xsl:when>
-          <xsl:when test=".='Reverse'">Normal</xsl:when>
-          <xsl:otherwise>UNKNOWN_<xsl:value-of select="." /></xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="name(.)" />= <xsl:call-template name="mapServoDirection"><xsl:with-param name="direction" select="text()" /><xsl:with-param name="servoName" select="../name" /></xsl:call-template>
 <xsl:text>
 </xsl:text>
   </xsl:template>
