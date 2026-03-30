@@ -88,7 +88,10 @@
             args.AddParam("generator", "", generator);
 
             transform.Transform(doc, args, writer);
-            return writer.ToString();
+
+            var dx9Xml = writer.ToString();
+            var dx9Spm = XmlToSpm.Convert(dx9Xml);
+            return dx9Spm;
         }
 
         public static string FilterDX8(string dx8Spm)
