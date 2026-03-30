@@ -62,6 +62,7 @@
             XPathDocument doc = loadSpmDocument(dx8Spm);
 
             var args = new XsltArgumentList();
+            args.AddExtensionObject("http://mutantdesign.co.uk/spm", new Dx8ToDx9XsltExtensions());
             if (modelName != null)
             {
                 args.AddParam("modelName", "", modelName);

@@ -707,76 +707,7 @@ vSource=</xsl:text><xsl:call-template name="mapServoVSource"><xsl:with-param nam
 </xsl:template>
   
   <xsl:template mode="mapvalue" match="*">
-    <xsl:choose>
-      <xsl:when test="text()='0'">0</xsl:when>       <!-- Inhibit -->
-      <xsl:when test="text()='1'">1</xsl:when>       <!-- THR Servo Out -->
-      <xsl:when test="text()='2'">2</xsl:when>       <!-- AIL Servo Out -->
-      <xsl:when test="text()='3'">3</xsl:when>       <!-- ELE Servo Out -->
-      <xsl:when test="text()='4'">4</xsl:when>       <!-- RUD Servo Out -->
-      <xsl:when test="text()='5'">5</xsl:when>       <!-- GER Servo Out -->
-      <!-- <xsl:when test="text()='6' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">64</xsl:when> --> <!-- Sailplane LAL -->
-      <xsl:when test="text()='6'">6</xsl:when>       <!-- AX1 Servo Out -->
-      <xsl:when test="text()='7' and (/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">9</xsl:when>   <!-- LEL Servo Out -->
-      <xsl:when test="text()='7' and (/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">8</xsl:when> <!-- LRU Servo Out -->
-      <xsl:when test="text()='7' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">79</xsl:when> <!-- RFL / GER (analogID) -->
-      <xsl:when test="text()='7' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1')">AX2_NOT_AVAILABLE</xsl:when> <!-- AX2 not available on DX9 -->
-      <xsl:when test="text()='7'">7</xsl:when>       <!-- AX2 Servo Out -->
-      <xsl:when test="text()='8'">8</xsl:when>       <!-- AX3 Servo Out -->
-      <xsl:when test="text()='16' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">7</xsl:when> <!-- Sailplane MOT -->
-      <xsl:when test="text()='16'">64</xsl:when>     <!-- Thr. Stick -->
-      <xsl:when test="text()='17'">65</xsl:when>     <!-- Ail. Stick -->
-      <xsl:when test="text()='18'">66</xsl:when>     <!-- Ele. Stick -->
-      <xsl:when test="text()='19'">67</xsl:when>     <!-- Rud. Stick -->
-      <xsl:when test="text()='20'">68</xsl:when>     <!-- 20-> 68  - Trainer->Switch I -->
-      <xsl:when test="text()='21'">69</xsl:when>     <!-- R Knob -->
-      <xsl:when test="text()='32'">78</xsl:when>     <!-- 32-> 78 - FLP (analogID) -->
-      <!-- <xsl:when test="text()='33' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">6</xsl:when> --> <!-- Sailplane LFL -->
-      <xsl:when test="text()='33'">79</xsl:when>     <!-- 33-> 79 - GER (analogID) -->
-      <xsl:when test="text()='40'">82</xsl:when>     <!-- Gear -->
-      <xsl:when test="text()='41'">83</xsl:when>     <!-- F Mode -->
-      <xsl:when test="text()='42'">84</xsl:when>     <!-- Elev D/R -->
-      <xsl:when test="text()='43'">85</xsl:when>     <!-- Flap -->
-      <xsl:when test="text()='44'">86</xsl:when>     <!-- Aux 2 -->
-      <xsl:when test="text()='45'">87</xsl:when>     <!-- Ail D/R -->
-      <xsl:when test="text()='46'">88</xsl:when>     <!-- Rud D/R -->
-      <xsl:when test="text()='47'">89</xsl:when>     <!-- Mix/Hold -->
-      <xsl:when test="text()='50'">92</xsl:when>     <!-- Trainer/Bind -->
-      <xsl:when test="text()='63'">107</xsl:when>    <!-- On -->
-      <xsl:when test="text()='64'">108</xsl:when>    <!-- 64-> 108 - THR Trim (ThroCurve/trimID) -->
-      <xsl:when test="text()='65'">109</xsl:when>    <!-- 65-> 109 - AIL Trim -->
-      <xsl:when test="text()='66'">110</xsl:when>    <!-- 66-> 110 - AIL Trim -->
-      <xsl:when test="text()='67'">111</xsl:when>    <!-- 67-> 111 - AIL Trim -->
-      <xsl:when test="text()='68'">112</xsl:when>    <!-- LTrimD -->
-      <xsl:when test="text()='69'">113</xsl:when>    <!-- RTrimD -->
-      <xsl:when test="text()='70'">0</xsl:when>      <!-- 70-> 0   - FlpTrm (not supported on DX9?) -->
-      <xsl:when test="text()='75'">0</xsl:when>      <!-- Knob: FlpTrm (not supported on DX9?) -->
-      <xsl:when test="text()='242'">0</xsl:when>     <!-- 242->0   - Flaps (not supported on DX9?) -->
-      <xsl:when test="text()='95'">127</xsl:when>    <!-- THR analogID -->
-      <xsl:when test="text()='96'">128</xsl:when>    <!-- AIL analogID -->
-      <xsl:when test="text()='97'">129</xsl:when>    <!-- ELE analogID -->
-      <xsl:when test="text()='98'">130</xsl:when>    <!-- RUD analogID -->
-      <xsl:when test="text()='127'">145</xsl:when>   <!-- F Mode -->
-      <xsl:when test="text()='192' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">38</xsl:when> <!-- THR to AX2 -->
-      <xsl:when test="text()='192'">32</xsl:when>    <!-- THR -->
-      <xsl:when test="text()='193'">33</xsl:when>    <!-- AIL -->
-      <xsl:when test="text()='194'">34</xsl:when>    <!-- ELE -->
-      <xsl:when test="text()='195'">35</xsl:when>    <!-- RUD -->
-      <xsl:when test="text()='196' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">37</xsl:when> <!-- LFL to AX1 -->
-      <xsl:when test="text()='196'">36</xsl:when>    <!-- GER -->
-      <xsl:when test="text()='197' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">32</xsl:when> <!-- AX1 to LAL -->
-      <xsl:when test="text()='197'">37</xsl:when>    <!-- AX1 -->
-      <xsl:when test="text()='198' and (/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">40</xsl:when> <!-- LEL -->
-      <xsl:when test="text()='198' and (/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">39</xsl:when> <!-- LRU -->
-      <xsl:when test="text()='198' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">36</xsl:when> <!-- RFL -->
-      <xsl:when test="text()='198'">38</xsl:when>    <!-- AX2 -->
-      <xsl:when test="text()='199'">39</xsl:when>    <!-- AX3 -->
-      <xsl:when test="text()='200'">52</xsl:when>    <!-- LFL (EF-Mix/outChan) -->
-      <xsl:when test="text()='238'">34</xsl:when>    <!-- 238->34 - LAL (same as ELE?) -->
-      <xsl:when test="text()='239'">35</xsl:when>    <!-- 239->35 - RUD (same as RUD?) -->
-      <xsl:when test="text()='244'">200</xsl:when>   <!-- 244->200 - Gyro -->
-      <xsl:when test="text()='245'">201</xsl:when>   <!-- 245->201 - Governor -->
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select="text()" /></xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="spm:MapValue(text(), /SPM/Spektrum/Generator/text(), /SPM/Acro/Tail/text(), /SPM/Sail/Wing/text())" />
 </xsl:template>
   
   
