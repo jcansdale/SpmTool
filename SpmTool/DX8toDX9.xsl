@@ -237,6 +237,20 @@ fmVox=%0055
       <xsl:otherwise>%00000000</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:template name="emitDifferentialBlock">
+    <xsl:param name="name" />
+    <xsl:param name="rateElements" />
+
+&lt;<xsl:value-of select="$name" />&gt;
+<xsl:apply-templates mode="namevalue" select="conditionID" />
+<xsl:text>rate: </xsl:text><xsl:for-each select="$rateElements">
+      <xsl:text> </xsl:text>
+      <xsl:value-of select="text()" />
+    </xsl:for-each>
+&lt;/<xsl:value-of select="$name" />&gt;
+
+  </xsl:template>
   
 <!-- Sail -->
   
@@ -337,24 +351,8 @@ subTypeC=<xsl:call-template name="subTypeC">
 <xsl:template mode="top" match="Differential">
   <xsl:choose>
     <xsl:when test="/SPM/Spektrum/Type='Sail'">
-<xsl:if test="ailRate">&lt;Diff-Ail&gt;
-<xsl:apply-templates mode="namevalue" select="conditionID" />
-<xsl:text>rate: </xsl:text><xsl:for-each select="ailRate/Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-    </xsl:for-each>      
-&lt;/Diff-Ail&gt;
-
-</xsl:if> 
-<xsl:if test="flapRate">&lt;Diff-Flap&gt;
-<xsl:apply-templates mode="namevalue" select="conditionID" />
-<xsl:text>rate: </xsl:text><xsl:for-each select="flapRate/Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-    </xsl:for-each>      
-&lt;/Diff-Flap&gt;
-
-</xsl:if> 
+<xsl:if test="ailRate"><xsl:call-template name="emitDifferentialBlock"><xsl:with-param name="name" select="'Diff-Ail'" /><xsl:with-param name="rateElements" select="ailRate/Element" /></xsl:call-template></xsl:if> 
+<xsl:if test="flapRate"><xsl:call-template name="emitDifferentialBlock"><xsl:with-param name="name" select="'Diff-Flap'" /><xsl:with-param name="rateElements" select="flapRate/Element" /></xsl:call-template></xsl:if> 
     </xsl:when>
     <xsl:otherwise>&lt;<xsl:value-of select="name(.)" />&gt;
 <xsl:apply-templates mode="namevalue" select="*" />&lt;/<xsl:value-of select="name(.)" />&gt;
