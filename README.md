@@ -114,7 +114,6 @@ The Web Forms application supports:
 - `.zip` uploads containing multiple `.spm` files
 - target radio selection for `DX9`, `DX18`, and `DX8`
 - optional removal of the slot index from the model name
-- email-based logging and support notifications during conversions
 
 This front-end is Windows-hosted and relies on legacy ASP.NET Web Forms infrastructure.
 

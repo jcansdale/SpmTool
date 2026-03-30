@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -26,11 +23,9 @@ namespace SpmTool.WebApplication
             if (IsPostBack)
             {
                 string fileName = null;
-                byte[] dx8SpmBytes = null;
                 byte[] dx9SpmBytes = null;
                 var messageWriter = new StringWriter();
 
-                string contact = contactTextBox.Text;
                 string generator = targetGenerator.SelectedItem.Value;
 
                 try
@@ -43,36 +38,26 @@ namespace SpmTool.WebApplication
                         return;
                     }
 
-                    if (string.IsNullOrWhiteSpace(contact) || !contact.Contains('@'))
-                    {
-                        statusLabel.Text = "I might need to contact you regarding the conversion process. Please leave a contact email address. I won't spam you! ;)";
-                        return;
-                    }
-
                     var postedFile = fileUpload.PostedFile;
                     fileName = Path.GetFileName(postedFile.FileName);
                     var removeIndex = removeIndexCheckBox.Checked;
 
                     if (fileName.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
                     {
+                        var dx9MemoryStream = new MemoryStream();
                         var dx8MemoryStream = new MemoryStream();
                         postedFile.InputStream.CopyTo(dx8MemoryStream);
-                        dx8SpmBytes = dx8MemoryStream.ToArray();
-
-                        var dx9MemoryStream = new MemoryStream();
-                        convertZip(generator, removeIndex, new MemoryStream(dx8SpmBytes), dx9MemoryStream, messageWriter);
+                        convertZip(generator, removeIndex, new MemoryStream(dx8MemoryStream.ToArray()), dx9MemoryStream, messageWriter);
                         dx9SpmBytes = dx9MemoryStream.ToArray();
                     }
                     else if (fileName.EndsWith(".spm", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var reader = new StreamReader(postedFile.InputStream);
                         string dx8Spm = reader.ReadToEnd();
-                        dx8SpmBytes = Encoding.ASCII.GetBytes(dx8Spm);
 
                         string dx9Spm = convertSpm(dx8Spm, generator, removeIndex, fileName, messageWriter);
                         if (dx9Spm == null)
                         {
-                            sendEmail(contact, "Couldn't convert: " + fileName, messageWriter.ToString(), fileName, dx8SpmBytes, dx9SpmBytes, generator);
                             statusLabel.Text = messageWriter.ToString();
                             return;
                         }
@@ -88,13 +73,9 @@ namespace SpmTool.WebApplication
                 catch (Exception ex)
                 {
                     messageWriter.WriteLine(ex);
-                    sendEmail(contact, "Error converting: " + fileName, messageWriter.ToString(), fileName, dx8SpmBytes, dx9SpmBytes, generator);
-
                     statusLabel.Text = "The file could not be converted: " + ex.Message;
                     return;
                 }
-
-                sendEmail(contact, "Converted: " + fileName, messageWriter.ToString(), fileName, dx8SpmBytes, dx9SpmBytes, generator);
 
                 Response.AddHeader("Content-disposition", "attachment; filename=" + generator + "_" + fileName);
                 Response.ContentType = "application/octet-stream";
@@ -228,37 +209,6 @@ namespace SpmTool.WebApplication
                 messageWriter.WriteLine(path + " failed to convert: " + e.Message);
                 return null;
             }
-        }
-
-        private void sendEmail(string contact, string subject, string body, string fileName, byte[] dx8SpmBytes, byte[] dx9SpmBytes, string targetGenerator)
-        {
-            string toEmailAddress = "jcansdale+spm@gmail.com";
-            MailMessage message = new MailMessage(FROM_EMAIL_ADDRESS, toEmailAddress);
-            message.Subject = subject;
-            message.Body = "Contact: " + contact + "\n\n" + body;
-            if (dx8SpmBytes != null)
-            {
-                var dx8Attachment = new Attachment(new MemoryStream(dx8SpmBytes), fileName);
-                message.Attachments.Add(dx8Attachment);
-            }
-            if (dx9SpmBytes != null)
-            {
-                var dx9Attachment = new Attachment(new MemoryStream(dx9SpmBytes), targetGenerator + "_" + fileName);
-                message.Attachments.Add(dx9Attachment);
-            }
-            sendEmail(message);
-        }
-
-        const string FROM_EMAIL_ADDRESS = "SPM Converter <spm@mutantdesign.co.uk>";
-
-        static void sendEmail(MailMessage message)
-        {
-            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-            client.EnableSsl = true;
-            var smtpPassword = ConfigurationManager.AppSettings["SMTP_PASSWORD"] 
-                ?? Environment.GetEnvironmentVariable("SMTP_PASSWORD");
-            client.Credentials = new NetworkCredential("spm@mutantdesign.co.uk", smtpPassword);
-            client.Send(message);
         }
     }
 }

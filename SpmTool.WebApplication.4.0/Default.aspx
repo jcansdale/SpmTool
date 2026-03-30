@@ -46,10 +46,6 @@
             Here are some facts about <a href="https://www.rcgroups.com/forums/showthread.php?2083054-Spektrum-DX8-DX7s-DX9-DX18-conversion-tool-%28back-conversion-is-also-supported%29/page41#post40061413">compatible</a>
             SD cards.
             </p>
-            <p>
-                Contact email address:<br />
-                <asp:TextBox ID="contactTextBox" runat="server"></asp:TextBox>
-            </p>
 
             <p>
                 Select a 
