@@ -31,9 +31,7 @@
                 args.AddParam("modelName", "", modelName);
             }
 
-            var dx8Xml = transformToString(doc, "SpmTool.DX9toDX8.xslt", args);
-            var dx8Spm = XmlToSpm.Convert(dx8Xml);
-            return dx8Spm;
+            return transformXmlToSpm(doc, "SpmTool.DX9toDX8.xslt", args);
         }
 
         static string getShortName(string name)
@@ -76,15 +74,13 @@
 
             args.AddParam("generator", "", generator);
 
-            string dx9Spm = transformToString(doc, "SpmTool.DX8toDX9.xsl", args);
-            return normalizeSpm(dx9Spm);
+            return transformCanonicalSpm(doc, "SpmTool.DX8toDX9.xsl", args);
         }
 
         public static string FilterDX8(string dx8Spm)
         {
             XPathDocument doc = loadSpmDocument(dx8Spm);
-            var dx8Xml = transformToString(doc, "SpmTool.FilterDX8.xslt", new XsltArgumentList());
-            return XmlToSpm.Convert(dx8Xml);
+            return transformXmlToSpm(doc, "SpmTool.FilterDX8.xslt", new XsltArgumentList());
         }
 
         static XPathDocument loadSpmDocument(string spm)
@@ -102,9 +98,14 @@
             return writer.ToString();
         }
 
-        static string normalizeSpm(string spm)
+        static string transformXmlToSpm(XPathDocument doc, string resourceName, XsltArgumentList args)
         {
-            return XmlToSpm.Convert(SpmToXml.Convert(spm));
+            return XmlToSpm.Convert(transformToString(doc, resourceName, args));
+        }
+
+        static string transformCanonicalSpm(XPathDocument doc, string resourceName, XsltArgumentList args)
+        {
+            return XmlToSpm.Convert(SpmToXml.Convert(transformToString(doc, resourceName, args)));
         }
 
         static XslCompiledTransform findTransform(string resourceName)
