@@ -577,7 +577,7 @@ sdEnabled= 1
   <xsl:template mode="namevalue" match="RAE-Mix/percentAileron|RAE-Mix/percentElevator"><xsl:call-template name="emitMirroredValueLines"><xsl:with-param name="name" select="name(.)" /><xsl:with-param name="value" select="text()" /><xsl:with-param name="mirroredValue"><xsl:choose><xsl:when test="self::percentElevator"><xsl:value-of select="-text()" /></xsl:when><xsl:otherwise><xsl:value-of select="text()" /></xsl:otherwise></xsl:choose></xsl:with-param></xsl:call-template></xsl:template>
 
   <xsl:template mode="top" match="C-Mix|S-Mix">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="*" />conditionID= 145
+<xsl:apply-templates mode="namevalue" select="*" /><xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name" select="'conditionID'" /><xsl:with-param name="value" select="145" /></xsl:call-template>
 &lt;/<xsl:value-of select="name(.)" />&gt;
   
 </xsl:template>
@@ -684,20 +684,16 @@ vSource=</xsl:text><xsl:call-template name="mapServoVSource"><xsl:with-param nam
   </xsl:template>
 
   <!-- Default to Flight Mode -->
-  <xsl:template mode="namevalue" match="RevoCurve/conditionID">
-    <xsl:value-of select="name(.)" />= 145
-</xsl:template>
+  <xsl:template mode="namevalue" match="RevoCurve/conditionID"><xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name" select="name(.)" /><xsl:with-param name="value" select="145" /></xsl:call-template></xsl:template>
 
   <!-- Heli mixes default to using Flight Mode -->
   <xsl:template mode="namevalue" match="P-Mix/conditionID">
     <xsl:choose>
       <xsl:when test="/SPM/Spektrum/Type='Heli' and .='0' and ../activePositions!='%0000'">
-        <xsl:value-of select="name(.)" />= 145<xsl:text>
-</xsl:text>
+        <xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name" select="name(.)" /><xsl:with-param name="value" select="145" /></xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:apply-templates mode="mapvalue" select="." /><xsl:text>
-</xsl:text>
+        <xsl:variable name="mappedValue"><xsl:apply-templates mode="mapvalue" select="." /></xsl:variable><xsl:call-template name="emitNamedValueLine"><xsl:with-param name="name" select="name(.)" /><xsl:with-param name="value" select="$mappedValue" /></xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
