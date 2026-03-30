@@ -29,6 +29,38 @@ namespace SpmTool
             return builder.ToString();
         }
 
+        public static string BuildSailFModeNames()
+        {
+            return
+                "<FMode_Names>\n" +
+                "[fmName]\n" +
+                "*Index= 0\n" +
+                "display=\"Launch\"\n" +
+                "fmVox=%0053\n" +
+                "[/fmName]\n\n" +
+                "[fmName]\n" +
+                "*Index= 1\n" +
+                "display=\"Cruise\"\n" +
+                "fmVox=%0054\n" +
+                "[/fmName]\n\n" +
+                "[fmName]\n" +
+                "*Index= 2\n" +
+                "display=\"Thermal\"\n" +
+                "fmVox=%0056\n" +
+                "[/fmName]\n\n" +
+                "[fmName]\n" +
+                "*Index= 3\n" +
+                "display=\"Speed\"\n" +
+                "fmVox=%0057\n" +
+                "[/fmName]\n\n" +
+                "[fmName]\n" +
+                "*Index= 4\n" +
+                "display=\"Land\"\n" +
+                "fmVox=%0055\n" +
+                "[/fmName]\n" +
+                "</FMode_Names>\n\n";
+        }
+
         public static string BuildHeliFMode(string switchA, string switchB)
         {
             switchA = switchA?.Trim();
@@ -344,6 +376,11 @@ namespace SpmTool
         public string BuildTrainerTail(XPathNodeIterator activeElements)
         {
             return Dx8ToDx9ValueMapper.BuildTrainerTail(activeElements);
+        }
+
+        public string BuildSailFModeNames()
+        {
+            return Dx8ToDx9ValueMapper.BuildSailFModeNames();
         }
     }
 }

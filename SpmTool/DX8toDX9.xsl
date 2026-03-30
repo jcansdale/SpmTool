@@ -158,42 +158,6 @@ speedDown= <xsl:value-of select="$speed" />
 </xsl:text>
   </xsl:template>
 
-  <xsl:template name="emitSailFModeNames">
-      <xsl:text>&lt;FMode_Names&gt;
-[fmName]
-*Index= 0
-display="Launch"
-fmVox=%0053
-[/fmName]
-
-[fmName]
-*Index= 1
-display="Cruise"
-fmVox=%0054
-[/fmName]
-
-[fmName]
-*Index= 2
-display="Thermal"
-fmVox=%0056
-[/fmName]
-
-[fmName]
-*Index= 3
-display="Speed"
-fmVox=%0057
-[/fmName]
-
-[fmName]
-*Index= 4
-display="Land"
-fmVox=%0055
-[/fmName]
-&lt;/FMode_Names&gt;
-
-</xsl:text>
-  </xsl:template>
-
   <xsl:template name="emitDifferentialBlock">
     <xsl:param name="name" />
     <xsl:param name="rateElements" />
@@ -403,9 +367,7 @@ sdEnabled= 1
     </xsl:choose>&lt;/<xsl:value-of select="name(.)" />&gt;<xsl:text>
     
 </xsl:text>
-    <xsl:if test="/SPM/Sail">
-    <xsl:call-template name="emitSailFModeNames" />
-    </xsl:if>
+  <xsl:if test="/SPM/Sail"><xsl:value-of select="spm:BuildSailFModeNames()" /></xsl:if>
   </xsl:template>
   
   <xsl:template mode="namevalue" match="FMode/size">
