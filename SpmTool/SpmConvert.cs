@@ -71,7 +71,7 @@
             var reader = new StringReader(xml);
             XPathDocument doc = new XPathDocument(reader);
 
-            XslCompiledTransform transform = findTransform("SpmTool.DX8toDX9.xsl");
+            XslCompiledTransform transform = findTransform("SpmTool.DX8toDX9.xslt");
 
             var writer = new StringWriter();
             var args = new XsltArgumentList();

@@ -124,7 +124,7 @@ This front-end is Windows-hosted and relies on legacy ASP.NET Web Forms infrastr
 The conversion process uses XSLT transformations:
 
 1. **SPM -> XML**: Parse the SPM text format into structured XML
-2. **XML Transform**: Apply an XSLT stylesheet such as `DX8toDX9.xsl` or `DX9toDX8.xslt`
+2. **XML Transform**: Apply an XSLT stylesheet such as `DX8toDX9.xslt` or `DX9toDX8.xslt`
 3. **XML -> SPM**: Convert the transformed XML back to SPM text
 
 ### Key Files
@@ -134,7 +134,7 @@ The conversion process uses XSLT transformations:
 - `SpmConvert.cs` - High-level conversion API
 - `SpmUtilities.cs` - Helper functions for model detection and parsing
 - `Application.cs` - CLI entry point
-- `DX8toDX9.xsl` - XSLT for DX8 to DX9 conversion
+- `DX8toDX9.xslt` - XSLT for DX8 to DX9 conversion
 - `DX9toDX8.xslt` - XSLT for DX9 to DX8 conversion
 
 ## Current Limitations
