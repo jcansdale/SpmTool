@@ -3,156 +3,158 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  xmlns:spm="http://mutantdesign.co.uk/spm">
+  xmlns:spm="http://mutantdesign.co.uk/spm"
+  exclude-result-prefixes="msxsl spm">
 
-	<xsl:output method="text" omit-xml-declaration="yes" indent="no" />
+<xsl:output method="xml" omit-xml-declaration="yes" indent="no" />
   <xsl:param name="modelName" />
   <xsl:param name="generator" />
   <xsl:param name="masterVolume" />
   
-  <!--
-  <msxsl:script language="CSharp" implements-prefix="spm">
-  <![CDATA[
-    public int and(int x, int y) { return x & y; }
-    public int or(int x, int y) { return x | y; }
-  ]]>
-  </msxsl:script>
-
-  <xsl:value-of select="spm:and(@foo, @bar)" />
-  <xsl:value-of select="spm:or(@foo, @bar)" />
-  -->
-       
   <xsl:template match="/SPM">
-    <xsl:apply-templates mode="top" select="Spektrum|Acro|Trim|Servo|DR_Expo|ThroCut|P-Mix|Timer|FMode|EF-Mix|AR-Mix|FlapSystem|Differential|ThroCurve|Special|SoftSw|TrimID|Telemetry|Trainer|Heli|PitchCurve|RevoCurve|Gyro|Governor|RAE-Mix|C-Mix|S-Mix|SwashPlate|Warning|Config|Sail|CamberPreset|CamberMix|FlpEleMix|AR-Mix-S|AF-Mix-S" />
+    <SPM>
+      <xsl:apply-templates mode="top" select="Spektrum|Acro|Trim|Servo|DR_Expo|ThroCut|P-Mix|Timer|FMode|EF-Mix|AR-Mix|FlapSystem|Differential|ThroCurve|Special|SoftSw|TrimID|Telemetry|Trainer|Heli|PitchCurve|RevoCurve|Gyro|Governor|RAE-Mix|C-Mix|S-Mix|SwashPlate|Warning|Config|Sail|CamberPreset|CamberMix|FlpEleMix|AR-Mix-S|AF-Mix-S" />
 
-<xsl:if test="(/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">&lt;Servo&gt;
-*Index= 7
-name=INH
-vSource= 74
-&lt;/Servo&gt;
-</xsl:if>
-    
-<xsl:if test="(/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">&lt;Servo&gt;
-*Index= 8
-name=INH
-vSource= 74
-&lt;/Servo&gt;
-</xsl:if>
-   
-<xsl:if test="$masterVolume">&lt;Voice&gt;
-masterVolume= <xsl:value-of select="$masterVolume" />
-&lt;/Voice&gt;
-</xsl:if>
-    
-<xsl:text>
+      <xsl:if test="(/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">
+        <Servo>
+          <Index Type='Index'>7</Index>
+          <name>INH</name>
+          <vSource>74</vSource>
+        </Servo>
+      </xsl:if>
 
-*EOF*
-</xsl:text>
+      <xsl:if test="(/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">
+        <Servo>
+          <Index Type='Index'>8</Index>
+          <name>INH</name>
+          <vSource>74</vSource>
+        </Servo>
+      </xsl:if>
 
-</xsl:template>
+      <xsl:if test="$masterVolume">
+        <Voice>
+          <masterVolume><xsl:value-of select="$masterVolume" /></masterVolume>
+        </Voice>
+      </xsl:if>
+    </SPM>
+  </xsl:template>
   
   <!-- Generic cases must be defined first -->
   <xsl:template mode="namevalue" match="*[@Type='String']">
-    <xsl:value-of select="name(.)" />="<xsl:value-of select="." />"
-</xsl:template>
+    <xsl:element name="{name(.)}">
+      <xsl:attribute name="Type">String</xsl:attribute>
+      <xsl:value-of select="." />
+    </xsl:element>
+  </xsl:template>
 
   <xsl:template mode="namevalue" match="*[@Type='Object']">
-[<xsl:value-of select="name(.)" />]
-<xsl:apply-templates mode="namevalue" select="*" />[/<xsl:value-of select="name(.)" />]
-</xsl:template>
+    <xsl:element name="{name(.)}">
+      <xsl:attribute name="Type">Object</xsl:attribute>
+      <xsl:apply-templates mode="namevalue" select="*" />
+    </xsl:element>
+  </xsl:template>
 
   <xsl:template mode="namevalue" match="*[@Type='Array']">
-    <xsl:value-of select="name(.)" />:<xsl:for-each select="Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-    </xsl:for-each>
-<xsl:text>
-</xsl:text>
-</xsl:template>
+    <xsl:element name="{name(.)}">
+      <xsl:attribute name="Type">Array</xsl:attribute>
+      <xsl:for-each select="Element">
+        <Element><xsl:value-of select="text()" /></Element>
+      </xsl:for-each>
+    </xsl:element>
+  </xsl:template>
 
-<xsl:template mode="top" match="*">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="*" />&lt;/<xsl:value-of select="name(.)" />&gt;
-
-</xsl:template>
+  <xsl:template mode="top" match="*">
+    <xsl:element name="{name(.)}">
+      <xsl:apply-templates mode="namevalue" select="*" />
+    </xsl:element>
+  </xsl:template>
   
 <!-- Sail -->
   
-  <xsl:template match="ThroCurve" mode="top">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:choose>
-  <xsl:when test="/SPM/Sail/Motor='None'">analogID =64
-conditionID =0</xsl:when>
-  <xsl:when test="/SPM/Sail/Motor='SpoilStk'">analogID =64
-conditionID =145
-assignedCurve: <xsl:choose>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0000'">0 0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0001'">1 0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0002'">0 1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0003'">1 1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0004'">0 0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0005'">1 0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0006'">0 1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0007'">1 1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0008'">0 0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0009'">1 0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000A'">0 1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000B'">1 1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000C'">0 0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000D'">1 0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000E'">0 1 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%000F'">1 1 1 1</xsl:when>
-</xsl:choose>
-  
-[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: -1023 -1023 -1023 -1023 -1023 0 0[/Curvedata]</xsl:when>
-  <xsl:when test="/SPM/Sail/Motor">analogID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
-conditionID =<xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template>
-assignedCurve: <xsl:choose>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0000'">0 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0001'">1 0 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0002'">0 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0003'">1 1 0</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0004'">0 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0005'">1 0 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0006'">0 1 1</xsl:when>
-  <xsl:when test="/SPM/RAE-Mix/activePositions='%0007'">1 1 1</xsl:when>
-</xsl:choose>
-  
-[Curvedata]*Index= 0points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: -1023 -1023 -1023 -1023 -1023 0 0[/Curvedata][Curvedata]*Index= 1points= 5Expo=DisabledtrimActive=Disabledcurved=EnabledX: -1023 -511 0 511 1023 0 0Y: 1023 1023 1023 1023 1023 0 0[/Curvedata]</xsl:when>
-      <xsl:otherwise><xsl:apply-templates mode="namevalue" select="*" /></xsl:otherwise>
-    </xsl:choose>
-&lt;/<xsl:value-of select="name(.)" />&gt;
-<xsl:text>
-  
-</xsl:text>
+  <xsl:template match="ThroCurve" mode="top">
+    <xsl:element name="{name(.)}">
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail/Motor='None'">
+          <analogID>64</analogID>
+          <conditionID>0</conditionID>
+        </xsl:when>
+        <xsl:when test="/SPM/Sail/Motor='SpoilStk'">
+          <analogID>64</analogID>
+          <conditionID>145</conditionID>
+          <assignedCurve Type='Array'>
+            <xsl:call-template name="assignedCurveElements4">
+              <xsl:with-param name="ap" select="/SPM/RAE-Mix/activePositions" />
+            </xsl:call-template>
+          </assignedCurve>
+          <Curvedata Type='Object'>
+            <Index Type='Index'>0</Index>
+            <points>5</points>
+            <Expo>Disabled</Expo>
+            <trimActive>Disabled</trimActive>
+            <curved>Enabled</curved>
+            <X Type='Array'><Element>-1023</Element><Element>-511</Element><Element>0</Element><Element>511</Element><Element>1023</Element><Element>0</Element><Element>0</Element></X>
+            <Y Type='Array'><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>0</Element><Element>0</Element></Y>
+          </Curvedata>
+        </xsl:when>
+        <xsl:when test="/SPM/Sail/Motor">
+          <analogID><xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template></analogID>
+          <conditionID><xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="/SPM/Sail" /></xsl:call-template></conditionID>
+          <assignedCurve Type='Array'>
+            <xsl:call-template name="assignedCurveElements3">
+              <xsl:with-param name="ap" select="/SPM/RAE-Mix/activePositions" />
+            </xsl:call-template>
+          </assignedCurve>
+          <Curvedata Type='Object'>
+            <Index Type='Index'>0</Index>
+            <points>5</points>
+            <Expo>Disabled</Expo>
+            <trimActive>Disabled</trimActive>
+            <curved>Enabled</curved>
+            <X Type='Array'><Element>-1023</Element><Element>-511</Element><Element>0</Element><Element>511</Element><Element>1023</Element><Element>0</Element><Element>0</Element></X>
+            <Y Type='Array'><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>-1023</Element><Element>0</Element><Element>0</Element></Y>
+          </Curvedata>
+          <Curvedata Type='Object'>
+            <Index Type='Index'>1</Index>
+            <points>5</points>
+            <Expo>Disabled</Expo>
+            <trimActive>Disabled</trimActive>
+            <curved>Enabled</curved>
+            <X Type='Array'><Element>-1023</Element><Element>-511</Element><Element>0</Element><Element>511</Element><Element>1023</Element><Element>0</Element><Element>0</Element></X>
+            <Y Type='Array'><Element>1023</Element><Element>1023</Element><Element>1023</Element><Element>1023</Element><Element>1023</Element><Element>0</Element><Element>0</Element></Y>
+          </Curvedata>
+        </xsl:when>
+        <xsl:otherwise><xsl:apply-templates mode="namevalue" select="*" /></xsl:otherwise>
+      </xsl:choose>
+    </xsl:element>
   </xsl:template>
 
   <xsl:template mode="namevalue" match="ThroCurve/analogID">
-    <xsl:choose>
-      <xsl:when test="/SPM/Sail">
-        <xsl:value-of select="name(.)" />= <xsl:call-template name="subTypeC">
-           <xsl:with-param name="sail" select="/SPM/Sail" />
-        </xsl:call-template><xsl:text>
-</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:apply-templates mode="mapvalue" select="." /><xsl:text>
-</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
+    <analogID>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail">
+          <xsl:call-template name="subTypeC">
+            <xsl:with-param name="sail" select="/SPM/Sail" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates mode="mapvalue" select="." />
+        </xsl:otherwise>
+      </xsl:choose>
+    </analogID>
   </xsl:template>
   
-  <xsl:template mode="top" match="Sail">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="Wing|Tail" />
-    <xsl:choose>
-      <xsl:when test="Motor='None'">Motor=None</xsl:when>
-      <xsl:otherwise>Motor=Unsupported
-subTypeC=<xsl:call-template name="subTypeC">
-           <xsl:with-param name="sail" select="." />
-        </xsl:call-template>
-</xsl:otherwise>
-    </xsl:choose>
-&lt;/<xsl:value-of select="name(.)" />&gt;<xsl:text>
-
-</xsl:text></xsl:template>
+  <xsl:template mode="top" match="Sail">
+    <xsl:element name="{name(.)}">
+      <xsl:apply-templates mode="namevalue" select="Wing|Tail" />
+      <xsl:choose>
+        <xsl:when test="Motor='None'"><Motor>None</Motor></xsl:when>
+        <xsl:otherwise>
+          <Motor>Unsupported</Motor>
+          <subTypeC><xsl:call-template name="subTypeC"><xsl:with-param name="sail" select="." /></xsl:call-template></subTypeC>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:element>
+  </xsl:template>
 
   <xsl:template name="subTypeC">
     <xsl:param name="sail" />
@@ -174,504 +176,505 @@ subTypeC=<xsl:call-template name="subTypeC">
       <xsl:otherwise>UNKNOWN_<xsl:value-of select="$sail/Motor" /></xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-   
-  <xsl:template mode="namevalue" match="efItem/flapUp">flapLeft= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flapDown">flapRight= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flonUp">flonLeft= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="efItem/flonDown">flonRight= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-<xsl:template mode="top" match="Differential">
-  <xsl:choose>
-    <xsl:when test="/SPM/Spektrum/Type='Sail'">
-<xsl:if test="ailRate">&lt;Diff-Ail&gt;
-<xsl:apply-templates mode="namevalue" select="conditionID" />
-<xsl:text>rate: </xsl:text><xsl:for-each select="ailRate/Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-    </xsl:for-each>      
-&lt;/Diff-Ail&gt;
 
-</xsl:if> 
-<xsl:if test="flapRate">&lt;Diff-Flap&gt;
-<xsl:apply-templates mode="namevalue" select="conditionID" />
-<xsl:text>rate: </xsl:text><xsl:for-each select="flapRate/Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-    </xsl:for-each>      
-&lt;/Diff-Flap&gt;
-
-</xsl:if> 
-    </xsl:when>
-    <xsl:otherwise>&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="*" />&lt;/<xsl:value-of select="name(.)" />&gt;
-
-</xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-  <xsl:template mode="namevalue" match="CamberPreset/cpItem[@Type='Object']">
-[efItem]
-<xsl:apply-templates mode="namevalue" select="*" />[/efItem]
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberPreset/cpItem/flap">flapLeft= <xsl:value-of select=".*10" />
-flapRight= <xsl:choose>
-    <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_2'">
-      <xsl:value-of select=".*-10" />
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of select=".*10" />
-    </xsl:otherwise>
-  </xsl:choose> 
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberPreset/cpItem/flon">flonLeft= <xsl:value-of select=".*-10" />
-flonRight= <xsl:value-of select=".*10" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberPreset/cpItem/elevator">elevator= <xsl:value-of select=".*10" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/csItem[@Type='Object']">
-[efItem]
-<xsl:apply-templates mode="namevalue" select="*" />[/efItem]
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/conditionID">conditionID= 145
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/csItem/offset">offset= <xsl:value-of select="-." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flapUp">
-    <xsl:text>flapLeft= </xsl:text>
+  <!-- Named templates for assignedCurve elements (4-element, SpoilStk case) -->
+  <xsl:template name="assignedCurveElements4">
+    <xsl:param name="ap" />
     <xsl:choose>
-      <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
-        <xsl:value-of select="round(.*100 div 1024)*100" />
+      <xsl:when test="$ap='%0000'"><Element>0</Element><Element>0</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0001'"><Element>1</Element><Element>0</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0002'"><Element>0</Element><Element>1</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0003'"><Element>1</Element><Element>1</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0004'"><Element>0</Element><Element>0</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0005'"><Element>1</Element><Element>0</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0006'"><Element>0</Element><Element>1</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0007'"><Element>1</Element><Element>1</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0008'"><Element>0</Element><Element>0</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%0009'"><Element>1</Element><Element>0</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000A'"><Element>0</Element><Element>1</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000B'"><Element>1</Element><Element>1</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000C'"><Element>0</Element><Element>0</Element><Element>1</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000D'"><Element>1</Element><Element>0</Element><Element>1</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000E'"><Element>0</Element><Element>1</Element><Element>1</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%000F'"><Element>1</Element><Element>1</Element><Element>1</Element><Element>1</Element></xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Named templates for assignedCurve elements (3-element, other motor case) -->
+  <xsl:template name="assignedCurveElements3">
+    <xsl:param name="ap" />
+    <xsl:choose>
+      <xsl:when test="$ap='%0000'"><Element>0</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0001'"><Element>1</Element><Element>0</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0002'"><Element>0</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0003'"><Element>1</Element><Element>1</Element><Element>0</Element></xsl:when>
+      <xsl:when test="$ap='%0004'"><Element>0</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%0005'"><Element>1</Element><Element>0</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%0006'"><Element>0</Element><Element>1</Element><Element>1</Element></xsl:when>
+      <xsl:when test="$ap='%0007'"><Element>1</Element><Element>1</Element><Element>1</Element></xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template mode="namevalue" match="efItem/flapUp">
+    <flapLeft><xsl:value-of select="." /></flapLeft>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="efItem/flapDown">
+    <flapRight><xsl:value-of select="." /></flapRight>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="efItem/flonUp">
+    <flonLeft><xsl:value-of select="." /></flonLeft>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="efItem/flonDown">
+    <flonRight><xsl:value-of select="." /></flonRight>
+  </xsl:template>
+  
+  <xsl:template mode="top" match="Differential">
+    <xsl:choose>
+      <xsl:when test="/SPM/Spektrum/Type='Sail'">
+        <xsl:if test="ailRate">
+          <Diff-Ail>
+            <xsl:apply-templates mode="namevalue" select="conditionID" />
+            <rate Type='Array'>
+              <xsl:for-each select="ailRate/Element">
+                <Element><xsl:value-of select="text()" /></Element>
+              </xsl:for-each>
+            </rate>
+          </Diff-Ail>
+        </xsl:if>
+        <xsl:if test="flapRate">
+          <Diff-Flap>
+            <xsl:apply-templates mode="namevalue" select="conditionID" />
+            <rate Type='Array'>
+              <xsl:for-each select="flapRate/Element">
+                <Element><xsl:value-of select="text()" /></Element>
+              </xsl:for-each>
+            </rate>
+          </Diff-Flap>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="round(.*100 div 1024)*10" />
+        <xsl:element name="{name(.)}">
+          <xsl:apply-templates mode="namevalue" select="*" />
+        </xsl:element>
       </xsl:otherwise>
     </xsl:choose>
-<xsl:text>
-</xsl:text>
+  </xsl:template>
+
+  <xsl:template mode="namevalue" match="CamberPreset/cpItem[@Type='Object']">
+    <efItem Type='Object'>
+      <xsl:apply-templates mode="namevalue" select="*" />
+    </efItem>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberPreset/cpItem/flap">
+    <flapLeft><xsl:value-of select=".*10" /></flapLeft>
+    <flapRight>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_2'">
+          <xsl:value-of select=".*-10" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select=".*10" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </flapRight>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberPreset/cpItem/flon">
+    <flonLeft><xsl:value-of select=".*-10" /></flonLeft>
+    <flonRight><xsl:value-of select=".*10" /></flonRight>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberPreset/cpItem/elevator">
+    <elevator><xsl:value-of select=".*10" /></elevator>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberMix/csItem[@Type='Object']">
+    <efItem Type='Object'>
+      <xsl:apply-templates mode="namevalue" select="*" />
+    </efItem>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberMix/conditionID">
+    <conditionID>145</conditionID>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberMix/csItem/offset">
+    <offset><xsl:value-of select="-." /></offset>
+  </xsl:template>
+  
+  <xsl:template mode="namevalue" match="CamberMix/csItem/flapUp">
+    <flapLeft>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
+          <xsl:value-of select="round(.*100 div 1024)*100" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="round(.*100 div 1024)*10" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </flapLeft>
   </xsl:template>
 
   <xsl:template mode="namevalue" match="CamberMix/csItem/flapDown">
-    <xsl:text>flapRight= </xsl:text>
-    <xsl:choose>
-      <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
-        <xsl:value-of select="round(.*100 div 1024)*100" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="round(.*100 div 1024)*10" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <flapRight>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail/Wing='Ail_2_Flap_1'">
+          <xsl:value-of select="round(.*100 div 1024)*100" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="round(.*100 div 1024)*10" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </flapRight>
   </xsl:template>
   
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flonUp">flonLeft= <xsl:value-of select="-round(.*100 div 1024)*10" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="CamberMix/csItem/flonUp">
+    <flonLeft><xsl:value-of select="-round(.*100 div 1024)*10" /></flonLeft>
+  </xsl:template>
   
-  <xsl:template mode="namevalue" match="CamberMix/csItem/flonDown">flonRight= <xsl:value-of select="-round(.*100 div 1024)*10" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="CamberMix/csItem/flonDown">
+    <flonRight><xsl:value-of select="-round(.*100 div 1024)*10" /></flonRight>
+  </xsl:template>
 
   <xsl:template mode="namevalue" match="CamberMix/csItem/analogID">
-    <xsl:text>analogID= </xsl:text>
-    <xsl:choose>
-      <xsl:when test=".='0'">0</xsl:when> <!-- Inhibit -->
-      <xsl:when test=".='16'">76</xsl:when> <!-- Spoiler Stick -->
-      <xsl:otherwise><xsl:value-of select="." /> NOT SUPPORTED</xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <analogID>
+      <xsl:choose>
+        <xsl:when test=".='0'">0</xsl:when> <!-- Inhibit -->
+        <xsl:when test=".='16'">76</xsl:when> <!-- Spoiler Stick -->
+        <xsl:otherwise><xsl:value-of select="." /> NOT SUPPORTED</xsl:otherwise>
+      </xsl:choose>
+    </analogID>
   </xsl:template>
 
-  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/left">left1= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/left">
+    <left1><xsl:value-of select="." /></left1>
+  </xsl:template>
   
-  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/right">right1= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="AR-Mix-S/arafItem/right">
+    <right1><xsl:value-of select="." /></right1>
+  </xsl:template>
   
   <xsl:template mode="namevalue" match="FlpEleMix/analogID">
-    <xsl:text>analogID= </xsl:text>
-    <xsl:choose>
-      <xsl:when test=".='16'">198</xsl:when> <!-- Flap? -->
-      <xsl:otherwise><xsl:value-of select="." /> NOT SUPPORTED</xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <analogID>
+      <xsl:choose>
+        <xsl:when test=".='16'">198</xsl:when> <!-- Flap? -->
+        <xsl:otherwise><xsl:value-of select="." /> NOT SUPPORTED</xsl:otherwise>
+      </xsl:choose>
+    </analogID>
   </xsl:template>
   
   <!-- Reverse RFL servo -->
   <xsl:template mode="namevalue" match="Servo/direction">
-    <xsl:choose>  
-      <xsl:when test="/SPM/Sail and ../name='RFL'">
-        <xsl:value-of select="name(.)" />= <xsl:choose>
-          <xsl:when test=".='Normal'">Reverse</xsl:when>
-          <xsl:when test=".='Reverse'">Normal</xsl:when>
-          <xsl:otherwise>UNKNOWN_<xsl:value-of select="." /></xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <direction>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail and ../name='RFL'">
+          <xsl:choose>
+            <xsl:when test=".='Normal'">Reverse</xsl:when>
+            <xsl:when test=".='Reverse'">Normal</xsl:when>
+            <xsl:otherwise>UNKNOWN_<xsl:value-of select="." /></xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="text()" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </direction>
   </xsl:template>
   
   <xsl:template mode="namevalue" match="Warning/Motor">
-    <xsl:text>Motor=</xsl:text>
-    <xsl:choose>
-      <xsl:when test="text()='%0000'">%0000</xsl:when>
-      <xsl:when test="text()='%0001' and /SPM/Sail/Motor='SpoilStk'">%0000</xsl:when>
-      <xsl:when test="text()='%0001'">
-        <xsl:value-of select="/SPM/RAE-Mix/activePositions" />
-      </xsl:when>
-      <xsl:otherwise>UNKNOWN_<xsl:value-of select ="." /></xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <Motor>
+      <xsl:choose>
+        <xsl:when test="text()='%0000'">%0000</xsl:when>
+        <xsl:when test="text()='%0001' and /SPM/Sail/Motor='SpoilStk'">%0000</xsl:when>
+        <xsl:when test="text()='%0001'">
+          <xsl:value-of select="/SPM/RAE-Mix/activePositions" />
+        </xsl:when>
+        <xsl:otherwise>UNKNOWN_<xsl:value-of select ="." /></xsl:otherwise>
+      </xsl:choose>
+    </Motor>
   </xsl:template>
   
 <!-- Trainer -->
-  <xsl:template mode="top" match="Trainer">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="Type" />
-<xsl:if test="Active">mixOrNormal=%0000
-mixRatio:<xsl:for-each select="Active/Element">
-<xsl:text>  </xsl:text>
-  <xsl:choose>
-    <xsl:when test="text()='Enabled'">100</xsl:when>
-    <xsl:otherwise>0</xsl:otherwise>
-  </xsl:choose>
-</xsl:for-each>
-<xsl:text>
-</xsl:text>
-</xsl:if>conditionID= 92
-MOverride=Disabled
-activePositions= 254
-&lt;/<xsl:value-of select="name(.)" />&gt;
-
-</xsl:template>
-
-<!-- Enable telemetry -->
-<!--
-  <xsl:template mode="namevalue" match="Telemetry/FlightLog[@Type='Object']">
-[<xsl:value-of select="name(.)" />]
-<xsl:apply-templates mode="namevalue" select="*" />
-sdEnabled= 1
-[/<xsl:value-of select="name(.)" />]
-</xsl:template>
--->  
+  <xsl:template mode="top" match="Trainer">
+    <Trainer>
+      <xsl:apply-templates mode="namevalue" select="Type" />
+      <xsl:if test="Active">
+        <mixOrNormal>%0000</mixOrNormal>
+        <mixRatio Type='Array'>
+          <xsl:for-each select="Active/Element">
+            <Element>
+              <xsl:choose>
+                <xsl:when test="text()='Enabled'">100</xsl:when>
+                <xsl:otherwise>0</xsl:otherwise>
+              </xsl:choose>
+            </Element>
+          </xsl:for-each>
+        </mixRatio>
+      </xsl:if>
+      <conditionID>92</conditionID>
+      <MOverride>Disabled</MOverride>
+      <activePositions>254</activePositions>
+    </Trainer>
+  </xsl:template>
 
   <!-- Use DX8 FMode switch -->
-  <xsl:template mode="top" match="FMode">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:choose>
-      <xsl:when test="/SPM/Heli">switch_a= <xsl:apply-templates mode="mapvalue" select="switch_a" />
-switch_b= 0
-switch_c= <xsl:apply-templates mode="mapvalue" select="switch_b" />
-size= 18
-fmtable: 1 1 1 1 1 1 2 2 2 2 2 2 3 4 4 3 4 4
-activePositions=%0006<xsl:text>
-</xsl:text>
-</xsl:when>
-      <xsl:otherwise><xsl:apply-templates mode="namevalue" select="switch_a|switch_b|switch_c|size|data" /></xsl:otherwise>
-    </xsl:choose>&lt;/<xsl:value-of select="name(.)" />&gt;<xsl:text>
-    
-</xsl:text>
+  <xsl:template mode="top" match="FMode">
+    <FMode>
+      <xsl:choose>
+        <xsl:when test="/SPM/Heli">
+          <switch_a><xsl:apply-templates mode="mapvalue" select="switch_a" /></switch_a>
+          <switch_b>0</switch_b>
+          <switch_c><xsl:apply-templates mode="mapvalue" select="switch_b" /></switch_c>
+          <size>18</size>
+          <fmtable Type='Array'>
+            <Element>1</Element><Element>1</Element><Element>1</Element><Element>1</Element><Element>1</Element><Element>1</Element>
+            <Element>2</Element><Element>2</Element><Element>2</Element><Element>2</Element><Element>2</Element><Element>2</Element>
+            <Element>3</Element><Element>4</Element><Element>4</Element><Element>3</Element><Element>4</Element><Element>4</Element>
+          </fmtable>
+          <activePositions>%0006</activePositions>
+        </xsl:when>
+        <xsl:otherwise><xsl:apply-templates mode="namevalue" select="switch_a|switch_b|switch_c|size|data" /></xsl:otherwise>
+      </xsl:choose>
+    </FMode>
     <xsl:if test="/SPM/Sail">
-      <xsl:text>&lt;FMode_Names&gt;[fmName]*Index= 0display="Launch"fmVox=%0053[/fmName][fmName]*Index= 1display="Cruise"fmVox=%0054[/fmName][fmName]*Index= 2display="Thermal"fmVox=%0056[/fmName][fmName]*Index= 3display="Speed"fmVox=%0057[/fmName][fmName]*Index= 4display="Land"fmVox=%0055[/fmName]&lt;/FMode_Names&gt;
-
-</xsl:text>
+      <FMode_Names>
+        <fmName Type='Object'>
+          <Index Type='Index'>0</Index>
+          <display Type='String'>Launch</display>
+          <fmVox>%0053</fmVox>
+        </fmName>
+        <fmName Type='Object'>
+          <Index Type='Index'>1</Index>
+          <display Type='String'>Cruise</display>
+          <fmVox>%0054</fmVox>
+        </fmName>
+        <fmName Type='Object'>
+          <Index Type='Index'>2</Index>
+          <display Type='String'>Thermal</display>
+          <fmVox>%0056</fmVox>
+        </fmName>
+        <fmName Type='Object'>
+          <Index Type='Index'>3</Index>
+          <display Type='String'>Speed</display>
+          <fmVox>%0057</fmVox>
+        </fmName>
+        <fmName Type='Object'>
+          <Index Type='Index'>4</Index>
+          <display Type='String'>Land</display>
+          <fmVox>%0055</fmVox>
+        </fmName>
+      </FMode_Names>
     </xsl:if>
   </xsl:template>
   
   <xsl:template mode="namevalue" match="FMode/size">
-    <xsl:value-of select="name(.)" /> =18
-</xsl:template>
+    <size>18</size>
+  </xsl:template>
 
-  <xsl:template mode="namevalue" match="FMode/data[@Type='Array']">fmtable:<xsl:for-each select="Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="text()" />
-      <xsl:if test="position() mod 3=0"> 0 0 0</xsl:if>
-    </xsl:for-each>
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="FMode/data[@Type='Array']">
+    <fmtable Type='Array'>
+      <xsl:for-each select="Element">
+        <Element><xsl:value-of select="text()" /></Element>
+        <xsl:if test="position() mod 3=0">
+          <Element>0</Element>
+          <Element>0</Element>
+          <Element>0</Element>
+        </xsl:if>
+      </xsl:for-each>
+    </fmtable>
+  </xsl:template>
   
   <xsl:template mode="namevalue" match="RAE-Mix/percentAileron">
-<xsl:value-of select="name(.)" /> =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-<xsl:value-of select="name(.)" />R =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+    <xsl:element name="{name(.)}"><xsl:value-of select="text()" /></xsl:element>
+    <xsl:element name="{concat(name(.), 'R')}"><xsl:value-of select="text()" /></xsl:element>
+  </xsl:template>
   
   <xsl:template mode="namevalue" match="RAE-Mix/percentElevator">
-<xsl:value-of select="name(.)" /> =<xsl:value-of select="text()" />
-<xsl:text>
-</xsl:text>
-<xsl:value-of select="name(.)" />R =<xsl:value-of select="-text()" />
-<xsl:text>
-</xsl:text>
-</xsl:template>
-
-  <xsl:template mode="top" match="C-Mix|S-Mix">&lt;<xsl:value-of select="name(.)" />&gt;
-<xsl:apply-templates mode="namevalue" select="*" />conditionID= 145
-&lt;/<xsl:value-of select="name(.)" />&gt;
+    <xsl:element name="{name(.)}"><xsl:value-of select="text()" /></xsl:element>
+    <xsl:element name="{concat(name(.), 'R')}"><xsl:value-of select="-text()" /></xsl:element>
+  </xsl:template>
   
-</xsl:template>
+  <xsl:template mode="top" match="C-Mix|S-Mix">
+    <xsl:element name="{name(.)}">
+      <xsl:apply-templates mode="namevalue" select="*" />
+      <conditionID>145</conditionID>
+    </xsl:element>
+  </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/FltMode">FltMode=<xsl:choose>
-      <xsl:when test="/SPM/Sail">
-        <xsl:value-of select="text()" />
-      </xsl:when>
-      <xsl:otherwise>
+  <xsl:template mode="namevalue" match="Warning/FltMode">
+    <FltMode>
+      <xsl:choose>
+        <xsl:when test="/SPM/Sail">
+          <xsl:value-of select="text()" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:choose>
+            <xsl:when test="text()='%0000'">%0000</xsl:when>
+            <xsl:when test="text()='%0020'">%0004</xsl:when>
+            <xsl:when test="text()='%0040'">%0008</xsl:when>
+            <xsl:when test="text()='%0060'">%000C</xsl:when>
+            <xsl:when test="text()='%0080'">%0000</xsl:when>
+            <xsl:when test="text()='%00A0'">%0004</xsl:when>
+            <xsl:when test="text()='%00C0'">%0008</xsl:when>
+            <xsl:when test="text()='%00E0'">%000C</xsl:when>
+            <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
+          </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
+    </FltMode>
+    <xsl:if test="/SPM/Heli">
+      <Hold>
         <xsl:choose>
           <xsl:when test="text()='%0000'">%0000</xsl:when>
-          <xsl:when test="text()='%0020'">%0004</xsl:when>
-          <xsl:when test="text()='%0040'">%0008</xsl:when>
-          <xsl:when test="text()='%0060'">%000C</xsl:when>
-          <xsl:when test="text()='%0080'">%0000</xsl:when>
-          <xsl:when test="text()='%00A0'">%0004</xsl:when>
-          <xsl:when test="text()='%00C0'">%0008</xsl:when>
-          <xsl:when test="text()='%00E0'">%000C</xsl:when>
+          <xsl:when test="text()='%0020'">%0000</xsl:when>
+          <xsl:when test="text()='%0040'">%0000</xsl:when>
+          <xsl:when test="text()='%0060'">%0000</xsl:when>
+          <xsl:when test="text()='%0080'">%0002</xsl:when>
+          <xsl:when test="text()='%00A0'">%0002</xsl:when>
+          <xsl:when test="text()='%00C0'">%0002</xsl:when>
+          <xsl:when test="text()='%00E0'">%0002</xsl:when>
           <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
         </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
-    <xsl:if test="/SPM/Heli">Hold=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0020'">%0000</xsl:when>
-    <xsl:when test="text()='%0040'">%0000</xsl:when>
-    <xsl:when test="text()='%0060'">%0000</xsl:when>
-    <xsl:when test="text()='%0080'">%0002</xsl:when>
-    <xsl:when test="text()='%00A0'">%0002</xsl:when>
-    <xsl:when test="text()='%00C0'">%0002</xsl:when>
-    <xsl:when test="text()='%00E0'">%0002</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text></xsl:if> 
-</xsl:template>
+      </Hold>
+    </xsl:if>
+  </xsl:template>
 
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
-  <xsl:template mode="namevalue" match="Warning/Flaps">Flaps=<xsl:choose>
-    <xsl:when test="text()='%0000'">%0000</xsl:when>
-    <xsl:when test="text()='%0001'">%0002</xsl:when>
-    <xsl:when test="text()='%0002'">%0004</xsl:when>
-    <xsl:when test="text()='%0003'">%0006</xsl:when>
-    <xsl:when test="text()='%0004'">%0005</xsl:when>
-    <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-  </xsl:choose>
-<xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="Warning/Flaps">
+    <Flaps>
+      <xsl:choose>
+        <xsl:when test="text()='%0000'">%0000</xsl:when>
+        <xsl:when test="text()='%0001'">%0002</xsl:when>
+        <xsl:when test="text()='%0002'">%0004</xsl:when>
+        <xsl:when test="text()='%0003'">%0006</xsl:when>
+        <xsl:when test="text()='%0004'">%0005</xsl:when>
+        <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
+      </xsl:choose>
+    </Flaps>
+  </xsl:template>
   
   <xsl:template mode="namevalue" match="*[@Type='Index']">
-    <xsl:text>*</xsl:text><xsl:value-of select="name(.)" />= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
-</xsl:template>
+    <xsl:element name="{name(.)}">
+      <xsl:attribute name="Type">Index</xsl:attribute>
+      <xsl:value-of select="." />
+    </xsl:element>
+  </xsl:template>
 
   <xsl:template mode="namevalue" match="Spektrum/Generator">
-    <xsl:value-of select="name(.)" />="<xsl:value-of select="$generator" />"
-</xsl:template>
+    <Generator Type='String'><xsl:value-of select="$generator" /></Generator>
+  </xsl:template>
 
-  <xsl:template mode="namevalue" match="Spektrum/VCode"></xsl:template>
+  <xsl:template mode="namevalue" match="Spektrum/VCode" />
 
   <xsl:template mode="namevalue" match="Spektrum/Name">
-    <xsl:choose>
-      <xsl:when test="$modelName">
-        <xsl:value-of select="name(.)" />="<xsl:value-of select="$modelName" />"</xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />="<xsl:value-of select="text()" />"</xsl:otherwise>
-    </xsl:choose>
-    <xsl:text>
-</xsl:text>
+    <Name Type='String'>
+      <xsl:choose>
+        <xsl:when test="$modelName"><xsl:value-of select="$modelName" /></xsl:when>
+        <xsl:otherwise><xsl:value-of select="text()" /></xsl:otherwise>
+      </xsl:choose>
+    </Name>
   </xsl:template>
 
-  <xsl:template mode="namevalue" match="Config/TrimType[text()='FMode']"><xsl:value-of select="name(.)" />=%0000003F
-</xsl:template>
+  <xsl:template mode="namevalue" match="Config/TrimType[text()='FMode']">
+    <TrimType>%0000003F</TrimType>
+  </xsl:template>
 
-  <xsl:template mode="namevalue" match="Config/TrimType[text()='Common']"><xsl:value-of select="name(.)" />=%00000000
-</xsl:template>
+  <xsl:template mode="namevalue" match="Config/TrimType[text()='Common']">
+    <TrimType>%00000000</TrimType>
+  </xsl:template>
   
-  <xsl:template mode="namevalue" match="Config/FrameRate"></xsl:template>
+  <xsl:template mode="namevalue" match="Config/FrameRate" />
 
   <!-- Spotted on DX7S 1.03. Not compatible with DX8. -->
-  <xsl:template mode="namevalue" match="Timer/activePositions"></xsl:template>
-<!--
-  <xsl:template mode="namevalue" match="Timer/Audio">audioX=<xsl:choose>
-  <xsl:when test="text()='Enabled'">%00F4</xsl:when>
-  <xsl:when test="text()='Disabled'">%0080</xsl:when>
-  <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-</xsl:choose>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
-  
-  <xsl:template mode="namevalue" match="Timer/Vibrate">vibeX=<xsl:choose>
-  <xsl:when test="text()='Enabled'">%0020</xsl:when>
-  <xsl:when test="text()='Disabled'">%0000</xsl:when>
-  <xsl:otherwise>UNKNOWN_<xsl:value-of select ="text()" /></xsl:otherwise>
-</xsl:choose>
-<xsl:text>
-</xsl:text>
-  </xsl:template>
--->  
-  <!-- Possible servo remaping -->
+  <xsl:template mode="namevalue" match="Timer/activePositions" />
+
+  <!-- Possible servo remapping -->
   <xsl:template mode="namevalue" match="Servo/name">
-    <xsl:value-of select="name(.)" />=<xsl:value-of select="." />
-<xsl:text>
-vSource=</xsl:text>
-    <xsl:choose>
-      <xsl:when test="text()='LEL' and (/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">8</xsl:when>
-      <xsl:when test="text()='LRU' and (/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">7</xsl:when>
-      <xsl:when test="text()='MOT' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">6</xsl:when>
-      <xsl:when test="text()='LAL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">0</xsl:when>
-      <xsl:when test="text()='RFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">4</xsl:when>
-      <xsl:when test="text()='LFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">5</xsl:when>
-      <xsl:otherwise><xsl:value-of select="../Index/text()" /></xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <name><xsl:value-of select="." /></name>
+    <vSource>
+      <xsl:choose>
+        <xsl:when test="text()='LEL' and (/SPM/Acro/Tail/text()='Dual_Rud_Ele' or /SPM/Acro/Tail/text()='Dual_Ele')">8</xsl:when>
+        <xsl:when test="text()='LRU' and (/SPM/Spektrum/Generator/text()='DX7S' and /SPM/Acro/Tail/text()='Dual_Rud')">7</xsl:when>
+        <xsl:when test="text()='MOT' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">6</xsl:when>
+        <xsl:when test="text()='LAL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_1' or /SPM/Sail/Wing/text()='Ail_2_Flap_2')">0</xsl:when>
+        <xsl:when test="text()='RFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">4</xsl:when>
+        <xsl:when test="text()='LFL' and (/SPM/Sail/Wing/text()='Ail_2_Flap_2')">5</xsl:when>
+        <xsl:otherwise><xsl:value-of select="../Index/text()" /></xsl:otherwise>
+      </xsl:choose>
+    </vSource>
   </xsl:template>
    
 <!-- Invert subtrim when reversed for old versions -->
   <xsl:template mode="namevalue" match="Servo/subTrim">
-    <xsl:choose>  
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <subTrim>
+      <xsl:choose>  
+        <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
+          <xsl:value-of select="-text()" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="text()" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </subTrim>
   </xsl:template>
 
 <!-- Swap and invert travelHigh when reversed for old versions -->
   <xsl:template mode="namevalue" match="Servo/travelLow">
-    <xsl:choose>
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelHigh/text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <travelLow>
+      <xsl:choose>
+        <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
+          <xsl:value-of select="-../travelHigh/text()" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="text()" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </travelLow>
   </xsl:template>
 
 <!-- Swap and invert travelLow when reversed for old versions -->
   <xsl:template mode="namevalue" match="Servo/travelHigh">
-    <xsl:choose>
-      <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="-../travelLow/text()" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:value-of select="text()" />
-      </xsl:otherwise>
-    </xsl:choose>
-<xsl:text>
-</xsl:text>
+    <travelHigh>
+      <xsl:choose>
+        <xsl:when test="((/SPM/Spektrum/Generator='DX8' and substring(/SPM/Spektrum/VCode/text(),2)&lt;2.05) or (/SPM/Spektrum/Generator='DX7S' and substring(/SPM/Spektrum/VCode/text(),2)&lt;1.02)) and ../direction='Reverse'">
+          <xsl:value-of select="-../travelLow/text()" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="text()" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </travelHigh>
   </xsl:template>
 
 <!-- Copy speed to downSpeed -->
   <xsl:template mode="namevalue" match="Servo/speed">
-    <xsl:value-of select="name(.)" />= <xsl:value-of select="." />
-speedDown= <xsl:value-of select="." />
-<xsl:text>
-</xsl:text>
+    <speed><xsl:value-of select="." /></speed>
+    <speedDown><xsl:value-of select="." /></speedDown>
   </xsl:template>
 
   <!-- Default to Flight Mode -->
   <xsl:template mode="namevalue" match="RevoCurve/conditionID">
-    <xsl:value-of select="name(.)" />= 145
-</xsl:template>
+    <conditionID>145</conditionID>
+  </xsl:template>
 
   <!-- Heli mixes default to using Flight Mode -->
   <xsl:template mode="namevalue" match="P-Mix/conditionID">
-    <xsl:choose>
-      <xsl:when test="/SPM/Spektrum/Type='Heli' and .='0' and ../activePositions!='%0000'">
-        <xsl:value-of select="name(.)" />= 145<xsl:text>
-</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="name(.)" />= <xsl:apply-templates mode="mapvalue" select="." /><xsl:text>
-</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
+    <conditionID>
+      <xsl:choose>
+        <xsl:when test="/SPM/Spektrum/Type='Heli' and .='0' and ../activePositions!='%0000'">145</xsl:when>
+        <xsl:otherwise><xsl:apply-templates mode="mapvalue" select="." /></xsl:otherwise>
+      </xsl:choose>
+    </conditionID>
   </xsl:template>
 
   <xsl:template mode="namevalue" match="conditionID|sourceID|outChan|analogID|StartID|switch_a|switch_b|switch_c|trimID|subTypeC">
-    <xsl:value-of select="name(.)" />
-    <xsl:text>= </xsl:text>
-    <xsl:apply-templates mode="mapvalue" select="." />
-    <xsl:text>
-</xsl:text>
-</xsl:template>
+    <xsl:element name="{name(.)}">
+      <xsl:apply-templates mode="mapvalue" select="." />
+    </xsl:element>
+  </xsl:template>
   
   <xsl:template mode="mapvalue" match="*">
     <xsl:choose>
@@ -744,23 +747,22 @@ speedDown= <xsl:value-of select="." />
       <xsl:when test="text()='245'">201</xsl:when>   <!-- 245->201 - Governor -->
       <xsl:otherwise>UNKNOWN_<xsl:value-of select="text()" /></xsl:otherwise>
     </xsl:choose>
-</xsl:template>
+  </xsl:template>
   
   
 <!-- AR-Mix values need to be inverted -->  
   <xsl:template mode="namevalue" match="AR-Mix/Curvedata/Y[@Type='Array']">
-    <xsl:value-of select="name(.)" />:<xsl:for-each select="Element">
-      <xsl:text> </xsl:text>
-      <xsl:value-of select="-text()" />
-    </xsl:for-each>
-<xsl:text>
-</xsl:text>
-</xsl:template>
+    <Y Type='Array'>
+      <xsl:for-each select="Element">
+        <Element><xsl:value-of select="-text()" /></Element>
+      </xsl:for-each>
+    </Y>
+  </xsl:template>
   
-<xsl:template mode="namevalue" match="*">
-    <xsl:value-of select="name(.)" />=<xsl:value-of select="." />
-    <xsl:text>
-</xsl:text>
-</xsl:template>
+  <xsl:template mode="namevalue" match="*">
+    <xsl:element name="{name(.)}">
+      <xsl:value-of select="." />
+    </xsl:element>
+  </xsl:template>
 
 </xsl:stylesheet>
