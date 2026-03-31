@@ -405,6 +405,7 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- ID mapping: DX9 value → DX8 value. See DX8toDX9.xslt for the reverse mapping. -->
   <xsl:template match="sourceID/text()|analogID/text()|conditionID/text()|trimID/text()|StartID/text()|outChan/text()|switch_a/text()|switch_b/text()|switch_c/text()">
     <xsl:choose>
       <!-- Inhibit -->

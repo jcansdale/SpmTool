@@ -14,7 +14,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="FilterDX8.xslt" />
-    <EmbeddedResource Include="DX8toDX9.xsl">
+    <EmbeddedResource Include="DX8toDX9.xslt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

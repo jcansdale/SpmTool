@@ -71,7 +71,7 @@
             var reader = new StringReader(xml);
             XPathDocument doc = new XPathDocument(reader);
 
-            XslCompiledTransform transform = findTransform("SpmTool.DX8toDX9.xsl");
+            XslCompiledTransform transform = findTransform("SpmTool.DX8toDX9.xslt");
 
             var writer = new StringWriter();
             var args = new XsltArgumentList();
@@ -88,7 +88,9 @@
             args.AddParam("generator", "", generator);
 
             transform.Transform(doc, args, writer);
-            return writer.ToString();
+
+            var dx9Xml = writer.ToString();
+            return XmlToSpm.Convert(dx9Xml);
         }
 
         public static string FilterDX8(string dx8Spm)
