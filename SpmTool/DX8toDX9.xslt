@@ -6,12 +6,16 @@
   xmlns:spm="http://mutantdesign.co.uk/spm"
   exclude-result-prefixes="msxsl spm">
 
-<xsl:output method="xml" omit-xml-declaration="yes" indent="no" />
+<xsl:output method="xml" indent="yes" />
   <xsl:param name="modelName" />
   <xsl:param name="generator" />
   <xsl:param name="masterVolume" />
   
-  <xsl:template match="/SPM">
+  <xsl:template match="/">
+    <xsl:apply-templates select="SPM" />
+  </xsl:template>
+
+  <xsl:template match="SPM">
     <SPM>
       <xsl:apply-templates mode="top" select="Spektrum|Acro|Trim|Servo|DR_Expo|ThroCut|P-Mix|Timer|FMode|EF-Mix|AR-Mix|FlapSystem|Differential|ThroCurve|Special|SoftSw|TrimID|Telemetry|Trainer|Heli|PitchCurve|RevoCurve|Gyro|Governor|RAE-Mix|C-Mix|S-Mix|SwashPlate|Warning|Config|Sail|CamberPreset|CamberMix|FlpEleMix|AR-Mix-S|AF-Mix-S" />
 
@@ -676,6 +680,7 @@
     </xsl:element>
   </xsl:template>
   
+  <!-- ID mapping: DX8 value → DX9 value. See DX9toDX8.xslt for the reverse mapping. -->
   <xsl:template mode="mapvalue" match="*">
     <xsl:choose>
       <xsl:when test="text()='0'">0</xsl:when>       <!-- Inhibit -->
