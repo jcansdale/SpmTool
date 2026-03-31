@@ -90,8 +90,7 @@
             transform.Transform(doc, args, writer);
 
             var dx9Xml = writer.ToString();
-            var dx9Spm = XmlToSpm.Convert(dx9Xml);
-            return dx9Spm;
+            return XmlToSpm.Convert(dx9Xml);
         }
 
         public static string FilterDX8(string dx8Spm)
